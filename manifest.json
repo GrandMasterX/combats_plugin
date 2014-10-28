@@ -1,0 +1,18 @@
+{
+   "content_scripts": [ {
+      "all_frames": true,
+      "js": [ "mercenaries_plugin.user.js" ],
+      "matches": [ "http://*.oldbk.com/*" ]
+   } ],
+   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+   "homepage_url": "http://old-mercenaries.ru",
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhdkK8kMfIovtxoLjPsjH6+9cF9qrWeqq7ZNh/W0tIQcQswYSAGG85p2tK+w+EpEdyZi0cGxGM3XidnLDQCYskNJw6rNVbpwdZS78Jbf0lfQEx/lLZlL452DfDaPUqs9R35HGYmUxjVWSvf+RSp74rlIlDa6ch0Nah9YPv30Nsjn2l9gyj6uhDDNiRzcYMwjmwGs5GQwDm5ag3GQdYq8I5y4akuogIS6MIRqO3HAcmknJ+14gOARD6wHpmFHYz+wsw3qnYh0HASuEGvTeg3/ISt3K8Z7coAVcMpZHXWOWa3pwVFX0iRc5hJ0KH6Nog5HaphV/LSGnE2u1w4K+fZtMXQIDAQAB",
+   "manifest_version": 2,
+   "minimum_chrome_version": "25",
+   "name": "Mercenaries Plugin",
+   "offline_enabled": true,
+   "permissions": [ "http://*.oldbk.com/*", "http://old-mercenaries.ru", "http://i.oldbk.com/*", "background", "alarms", "cookies", "declarativeContent", "declarativeWebRequest", "notifications", "clipboardRead", "fileBrowserHandler", "infobars", "webview", "clipboardWrite", "privacy", "sessions", "pageCapture", "webRequest", "webNavigation", "webRequestBlocking", "unlimitedStorage", "contextMenus", "http://*.oldbk.com/*", "http://*.old-mercenaries.ru/*" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.2.2",
+   "web_accessible_resources": [ "plugins/*" ]
+}
