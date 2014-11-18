@@ -8,6 +8,7 @@ var Bind = function(e, d, f) {
     } catch (ex) {
     }
 };
+
 (function($) {
     $.toJSON	= function(o) {
         if (typeof(JSON) == 'object' && JSON.stringify)
@@ -99,6 +100,7 @@ if (/^[],:{}s]*$/.test(filtered))
     ':'
     ', '"':'\"', '\':'\\'};
 })(jQuery);
+
 jQuery.cookie = function(name, value, options) {
     if (typeof value != 'undefined') {
         options = options || {};
@@ -138,6 +140,207 @@ jQuery.cookie = function(name, value, options) {
 };
 
 
+
+var PluginMaster = function(init_html) {
+    this.content_id		= "#left";
+    this.menu_id		= "#left_m";
+    this.scontent_id	= "#right";
+    this.smenu_id		= "#right_m";
+    this.plugins		= [];
+    this.global_options	= [];
+    this.Current		= {
+        Dispose: function() {
+            return false;
+        }
+    }
+    this.CurrentS		= {
+        Dispose: function() {
+            return false;
+        }
+    }
+    this.default_state	= true;
+    this.finished		= false;
+    this.services		= [];
+    this.new_radio		= 0;
+    this.bot_time		= -1;
+    this.offset			= 0;
+    this.buttons		= ((navigator.userAgent.toLowerCase().indexOf('chrome') > -1) ? 30 : 30);
+    this.user			= {id:0, align:0, clan:'', name:'', level:0, city:''};
+    this.Complete		= function() {
+        this.finished = true;
+        this.SaveOptions();
+    }
+    this.CollectOptions	= function() {
+        var new_global_options = [];
+        $(this.plugins).each(function () {
+            new_global_options.push({id:this.id, value:this.options, enabled:this.enabled});
+        });
+        $(this.global_options).each(function () {
+            var This = this;
+            var found = false;
+            $(new_global_options).each(function () {
+                if (this.id == This.id) {
+                    found = true;
+                    return false;
+                }
+            });
+            if (!found) {
+                new_global_options.push(This);
+            }
+        });
+        this.global_options = new_global_options;
+    }
+    this.AddPlugin		= function(plugin) {
+        this.plugins.push(plugin);
+        plugin.master = this;
+        $("#left_m").append(plugin.MenuItem());
+        if (this.global_options != null) {
+            var found = false;
+            $(this.global_options).each(function () {
+                if (this.id == plugin.id) {
+                    found = true;
+                }
+            })
+            if (!found) {
+                this.global_options.push({id:plugin.id, value:{}, enabled:this.default_state});
+            }
+        }
+        plugin.ApplyOptions();
+        return plugin;
+    }
+    this.AddService		= function(service) {
+        this.services.push(service);
+        service.master = this;
+        $("#right_m").append(service.MenuItem());
+        return service;
+    }
+    this.FrameReLoad	= function(window) {
+        $(this.plugins).each(function() {
+            if (this.enabled) {
+                this.Start(window);
+            }
+        });
+    }
+    this.ResizeFrame	= function() {
+        var body = top.document.body;
+        body.setAttribute("rows", $("body").outerHeight()+","+this.new_radio+",30,*,"+this.buttons);
+        $("#radio_oldfm").scrollTop(106);
+    }
+    this.Init			= function() {
+        if (typeof(window.opera) == 'undefined')
+            $("html").css("overflow", "hidden");
+        $("body").html(init_html);
+        $('head').append('<link rel="stylesheet" type="text/css" href="http://old-mercenaries.ru/plugins/laba/Initialize.css"/>');
+        this.global_options = $.cookie('mercenaries_plugin_options');
+        if (this.global_options != null)
+            this.global_options = $.evalJSON(this.global_options);
+        else {
+            this.global_options = [];
+            this.default_state = false;
+        }
+        var This = this;
+        $.ajax({
+            url:"main.php?edit=1",
+            success:function(data) {
+                var regex = /<B>(.*?)<\/B> \[(\d+)\]<a href=inf\.php\?(\d+) target/;
+                var res = data.match(regex);
+                if (res && res.length  class="underline"> 1) {
+                    This.user.name = res[1];
+                    var TempInt = parseInt(res[2], 10);
+                    if (isNaN(TempInt)) {
+                        This.user.level = res[2];
+                    } else {
+                        This.user.level = TempInt;
+                    }
+                    var TempInt = parseInt(res[3], 10);
+                    if (isNaN(TempInt)) {
+                        This.user.id = res[3];
+                    } else {
+                        This.user.id = TempInt;
+                    }
+                    if (This.user.id == 146790 || This.user.id == 487171 || This.user.id == 21657 ||
+                        This.user.id == 489778 || This.user.id == 166074 || This.user.id == 489842 ||
+                        This.user.id == 535834 || This.user.id == 579909 || This.user.id == 256683
+                    //|| This.user.id == 431523 /*Ковшик из BlackAces*/
+                    //|| This.user.id == 53821 /*Незванный*/
+                    //|| This.user.id == 539387 /*- Homer Simpson -*/
+                    // клан-вара BlackAces ||
+                    //||
+                    //This.user.id == 431523 /*Ковшик из BlackAces*/||
+                    //This.user.id == 34988 /*-koks-*/||
+                    //This.user.id == 286538 /*-Zmei-*/||
+                    //This.user.id == 395988 /*-И­рика- - Глава клана*/||
+                    //This.user.id == 72822 /*dan4ik*/||
+                    //This.user.id == 403782 /*Dobbin*/||
+                    //This.user.id == 12997 /*I love NYC*/||
+                    //This.user.id == 610510 /*keed*/||
+                    //This.user.id == 467010 /*Томат*/||
+                    //This.user.id == 412286 /*Baghirov*/||
+                    //This.user.id == 448127 /*Козырный Король*/||
+                    //This.user.id == 99300 /*Непокоримый*/||
+                    //This.user.id == 13172 /*Негодяй*/||
+                    //This.user.id == 437990 /*Torques*/||
+                    //This.user.id == 123234 /*Offizier*/||
+                    //This.user.id == 459833 /*Аватарь*/||
+                    //This.user.id == 179419 /*Беспредельный ТуЗ*/||
+                    //This.user.id == 527414 /*Шура Каретный*/||
+                    //This.user.id == 27071 /*black hole*/||
+                    //This.user.id == 350058 /*РусДрагос*/||
+                    //This.user.id == 7420 /*Убийца Легавых*/||
+                    //This.user.id == 18318 /*NegaL*/||
+                    //This.user.id == 8534 /*Ronin*/||
+                    //This.user.id == 292041 /*Dominikanec*/||
+                    //This.user.id == 13352 /*SaV1oR*/||
+                    //This.user.id == 611013 /*Брат Мо*/||
+                    //This.user.id == 617714 /*Козырная Дама*/||
+                    //This.user.id == 13178 /*Убийца Лягавых*/||
+                    //This.user.id == 11249 /*Пьяный Викинг*/||
+                    //This.user.id == 612817 /*s7ress*/||
+                    //This.user.id == 13375 /*Monterei*/||
+                    //This.user.id == 257747 /*Kamar*/||
+                    //This.user.id == 446870 /*Virdo_ tora*/||
+                    //This.user.id == 218820 /* ГадскийГад - покинул клан*/||
+                    //This.user.id == 514148 /* agentSp1ko - покинул клан*/||
+                    //This.user.id == 25678 /* Bender - в блоке*/||
+                    //This.user.id == 473714 /* Moreau - рекрут не играет*/||
+                    //This.user.id == 123586 /* Интубатор - рекрут не играет*/||
+                    //This.user.id == 475182 /* strike - рекрут не играет*/||
+                    //This.user.id == 267350 /* Читер - рекрут не играет*/||
+                    //This.user.id == 125990 /* ПОРОХ - рекрут не играет*/||
+                    //This.user.id == 138149 /* Kill You- рекрут*/||
+                    //This.user.id == 219679 /*1shot-_-1kill - Глава рекрутов*/
+                    ) {
+                        var temp002 = This.global_options.length;
+                        for (var i = 0; i < temp002; i++) {
+                            This.plugins[i].enabled = false;
+                            This.plugins[i].Disable();
+                            if (This.plugins[i].id == "Nastroika" || This.plugins[i].id == "AutoUdar" || This.plugins[i].id == "AutoUdarOld" || This.plugins[i].id == "LabaPilot" || This.plugins[i].id == "flooder") {
+                                This.plugins[i].contentHTML = "";
+                                if (This.plugins[i].id == "Nastroika")
+                                    This.plugins[i].menuitem[0].outerHTML = '<a target="_blank" title="Заблокирован по ЧС - обращаться по разблоку к персонажу -GrandMaster-"><font color="red" size="+1"><strong>&nbsp;&nbsp;Плагин заблокирован</strong></font></a>';
+                                else {
+                                    This.plugins[i].menuitem[0].outerHTML = "";
+                                    This.plugins[i].menuitem[0].hidden = true;
+                                }
+                            }
+                        }
+                        This.plugins = [];
+                    }
+                }
+            }
+        });
+
+        setTimeout(function() {
+            This.ResizeFrame();
+            $('frameset frameset:eq(0)', top.document).attr('rows', '60%,*,0');
+        }, 300);
+    }
+    this.SaveOptions	= function() {
+        this.CollectOptions();
+        if (this.global_options != null)
+            $.cookie('mercenaries_plugin_options', $.toJSON(this.global_options), {expires:30});
+    }
+}
 
 var NastroikaPl = function() {
     this.help			= "";
@@ -251,6 +454,7 @@ var NastroikaPl = function() {
         this.created = false;
     }
 }
+
 var AutoUdarPl = function() {
     this.help			= "#";
     this.name			= "АвтоВелик";
@@ -985,6 +1189,7 @@ var AutoUdarPl = function() {
         this.MenuItem().css("background-color", "");
     }
 }
+
 var AutoUdarOldPl = function() {
     this.help				= "#";
     this.name				= "АвтоУдар";
@@ -1461,6 +1666,7 @@ var AutoUdarOldPl = function() {
         this.MenuItem().css("background-color", "");
     }
 }
+
 var RadioService = function() {
     this.id = "CloseRadio";
     this.menuitem = null;
@@ -1556,206 +1762,7 @@ var SiteServices = function() {
         this.created = false;
     }
 }
-var PluginMaster = function(init_html) {
-    this.content_id		= "#left";
-    this.menu_id		= "#left_m";
-    this.scontent_id	= "#right";
-    this.smenu_id		= "#right_m";
-    this.plugins		= [];
-    this.global_options	= [];
-    this.Current		= {
-        Dispose: function() {
-            return false;
-        }
-    }
-    this.CurrentS		= {
-        Dispose: function() {
-            return false;
-        }
-    }
-    this.default_state	= true;
-    this.finished		= false;
-    this.services		= [];
-    this.new_radio		= 0;
-    this.bot_time		= -1;
-    this.offset			= 0;
-    this.buttons		= ((navigator.userAgent.toLowerCase().indexOf('chrome') > -1) ? 30 : 30);
-    this.user			= {id:0, align:0, clan:'', name:'', level:0, city:''};
-    this.Complete		= function() {
-        this.finished = true;
-        this.SaveOptions();
-    }
-    this.CollectOptions	= function() {
-        var new_global_options = [];
-        $(this.plugins).each(function () {
-            new_global_options.push({id:this.id, value:this.options, enabled:this.enabled});
-        });
-        $(this.global_options).each(function () {
-            var This = this;
-            var found = false;
-            $(new_global_options).each(function () {
-                if (this.id == This.id) {
-                    found = true;
-                    return false;
-                }
-            });
-            if (!found) {
-                new_global_options.push(This);
-            }
-        });
-        this.global_options = new_global_options;
-    }
-    this.AddPlugin		= function(plugin) {
-        this.plugins.push(plugin);
-        plugin.master = this;
-        $("#left_m").append(plugin.MenuItem());
-        if (this.global_options != null) {
-            var found = false;
-            $(this.global_options).each(function () {
-                if (this.id == plugin.id) {
-                    found = true;
-                }
-            })
-            if (!found) {
-                this.global_options.push({id:plugin.id, value:{}, enabled:this.default_state});
-            }
-        }
-        plugin.ApplyOptions();
-        return plugin;
-    }
-    this.AddService		= function(service) {
-        this.services.push(service);
-        service.master = this;
-        $("#right_m").append(service.MenuItem());
-        return service;
-    }
-    this.FrameReLoad	= function(window) {
-        $(this.plugins).each(function() {
-            if (this.enabled) {
-                this.Start(window);
-            }
-        });
-    }
-    this.ResizeFrame	= function() {
-        var body = top.document.body;
-        body.setAttribute("rows", $("body").outerHeight()+","+this.new_radio+",30,*,"+this.buttons);
-        $("#radio_oldfm").scrollTop(106);
-    }
-    this.Init			= function() {
-        if (typeof(window.opera) == 'undefined')
-            $("html").css("overflow", "hidden");
-        $("body").html(init_html);
-        $('head').append('<link rel="stylesheet" type="text/css" href="http://old-mercenaries.ru/plugins/laba/Initialize.css"/>');
-        this.global_options = $.cookie('mercenaries_plugin_options');
-        if (this.global_options != null)
-            this.global_options = $.evalJSON(this.global_options);
-        else {
-            this.global_options = [];
-            this.default_state = false;
-        }
-        var This = this;
-        $.ajax({
-            url:"main.php?edit=1",
-            success:function(data) {
-                var regex = /<B>(.*?)<\/B> \[(\d+)\]<a href=inf\.php\?(\d+) target/;
-                var res = data.match(regex);
-                if (res && res.length  class="underline"> 1) {
-                    This.user.name = res[1];
-                    var TempInt = parseInt(res[2], 10);
-                    if (isNaN(TempInt)) {
-                        This.user.level = res[2];
-                    } else {
-                        This.user.level = TempInt;
-                    }
-                    var TempInt = parseInt(res[3], 10);
-                    if (isNaN(TempInt)) {
-                        This.user.id = res[3];
-                    } else {
-                        This.user.id = TempInt;
-                    }
-                    if (This.user.id == 146790 || This.user.id == 487171 || This.user.id == 21657 ||
-                        This.user.id == 489778 || This.user.id == 166074 || This.user.id == 489842 ||
-                        This.user.id == 535834 || This.user.id == 579909 || This.user.id == 256683
-                    //|| This.user.id == 431523 /*Ковшик из BlackAces*/
-                    //|| This.user.id == 53821 /*Незванный*/
-                    //|| This.user.id == 539387 /*- Homer Simpson -*/
-                    // клан-вара BlackAces ||
-                    //||
-                    //This.user.id == 431523 /*Ковшик из BlackAces*/||
-                    //This.user.id == 34988 /*-koks-*/||
-                    //This.user.id == 286538 /*-Zmei-*/||
-                    //This.user.id == 395988 /*-И­рика- - Глава клана*/||
-                    //This.user.id == 72822 /*dan4ik*/||
-                    //This.user.id == 403782 /*Dobbin*/||
-                    //This.user.id == 12997 /*I love NYC*/||
-                    //This.user.id == 610510 /*keed*/||
-                    //This.user.id == 467010 /*Томат*/||
-                    //This.user.id == 412286 /*Baghirov*/||
-                    //This.user.id == 448127 /*Козырный Король*/||
-                    //This.user.id == 99300 /*Непокоримый*/||
-                    //This.user.id == 13172 /*Негодяй*/||
-                    //This.user.id == 437990 /*Torques*/||
-                    //This.user.id == 123234 /*Offizier*/||
-                    //This.user.id == 459833 /*Аватарь*/||
-                    //This.user.id == 179419 /*Беспредельный ТуЗ*/||
-                    //This.user.id == 527414 /*Шура Каретный*/||
-                    //This.user.id == 27071 /*black hole*/||
-                    //This.user.id == 350058 /*РусДрагос*/||
-                    //This.user.id == 7420 /*Убийца Легавых*/||
-                    //This.user.id == 18318 /*NegaL*/||
-                    //This.user.id == 8534 /*Ronin*/||
-                    //This.user.id == 292041 /*Dominikanec*/||
-                    //This.user.id == 13352 /*SaV1oR*/||
-                    //This.user.id == 611013 /*Брат Мо*/||
-                    //This.user.id == 617714 /*Козырная Дама*/||
-                    //This.user.id == 13178 /*Убийца Лягавых*/||
-                    //This.user.id == 11249 /*Пьяный Викинг*/||
-                    //This.user.id == 612817 /*s7ress*/||
-                    //This.user.id == 13375 /*Monterei*/||
-                    //This.user.id == 257747 /*Kamar*/||
-                    //This.user.id == 446870 /*Virdo_ tora*/||
-                    //This.user.id == 218820 /* ГадскийГад - покинул клан*/||
-                    //This.user.id == 514148 /* agentSp1ko - покинул клан*/||
-                    //This.user.id == 25678 /* Bender - в блоке*/||
-                    //This.user.id == 473714 /* Moreau - рекрут не играет*/||
-                    //This.user.id == 123586 /* Интубатор - рекрут не играет*/||
-                    //This.user.id == 475182 /* strike - рекрут не играет*/||
-                    //This.user.id == 267350 /* Читер - рекрут не играет*/||
-                    //This.user.id == 125990 /* ПОРОХ - рекрут не играет*/||
-                    //This.user.id == 138149 /* Kill You- рекрут*/||
-                    //This.user.id == 219679 /*1shot-_-1kill - Глава рекрутов*/
-                    ) {
-                        var temp002 = This.global_options.length;
-                        for (var i = 0; i < temp002; i++) {
-                            This.plugins[i].enabled = false;
-                            This.plugins[i].Disable();
-                            if (This.plugins[i].id == "Nastroika" || This.plugins[i].id == "AutoUdar" || This.plugins[i].id == "AutoUdarOld" || This.plugins[i].id == "LabaPilot" || This.plugins[i].id == "flooder") {
-                                This.plugins[i].contentHTML = "";
-                                if (This.plugins[i].id == "Nastroika")
-                                    This.plugins[i].menuitem[0].outerHTML = '<a target="_blank" title="Заблокирован по ЧС - обращаться по разблоку к персонажу -GrandMaster-"><font color="red" size="+1"><strong>&nbsp;&nbsp;Плагин заблокирован</strong></font></a>';
-                                else {
-                                    This.plugins[i].menuitem[0].outerHTML = "";
-                                    This.plugins[i].menuitem[0].hidden = true;
-                                }
-                            }
-                        }
-                        This.plugins = [];
-                    }
-                }
-            }
-        });
 
-        setTimeout(function() {
-            This.ResizeFrame();
-            $('frameset frameset:eq(0)', top.document).attr('rows', '60%,*,0');
-        }, 300);
-    }
-    this.SaveOptions	= function() {
-        this.CollectOptions();
-        if (this.global_options != null)
-            $.cookie('mercenaries_plugin_options', $.toJSON(this.global_options), {expires:30});
-    }
-}
 var LabaPilotPl = function() {
     this.help			= "#";
     this.name			= "АвтоЛаба";
@@ -2282,6 +2289,7 @@ var LabaPilotPl = function() {
         this.MenuItem().css("background-color","");
     }
 }
+
 var SetsPl = function() {
     this.help			= "#";
     this.name			= "Комплекты";
@@ -2369,10 +2377,10 @@ var SetsPl = function() {
                             i1 = data.indexOf("&complect=", i3);
                             i2 = data.indexOf("'", i1);
                             i3 = data.indexOf('"<', i2);
-                            str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].PSets.DressSet(" + data.substr(i1 + 10, i2 - i1 - 10) + ");return false;' class="underline">" + data.substr(i2 + 10, i3 - i2 - 10) + "</a><br>";
+                            str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].PSets.DressSet(" + data.substr(i1 + 10, i2 - i1 - 10) + ");return false;'>" + data.substr(i2 + 10, i3 - i2 - 10) + "</a><br>";
                         }
-                        str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].PSets.DressSet(0);return false;' class="underline">Снять все</a><br>";
-                        str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].PSets.ShowSets(true);return false;' class="underline">Обновить комплекты</a><br>";
+                        str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].PSets.DressSet(0);return false;'>Снять все</a><br>";
+                        str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].PSets.ShowSets(true);return false;'>Обновить комплекты</a><br>";
                         This.contentHTML = str;
                         DivSets.innerHTML = str;
                         DivSets.style.display = "block";
@@ -2409,6 +2417,7 @@ var SetsPl = function() {
     this.Dispose		= function() {
     }
 }
+
 var SecretRoomPl=function() {
     this.help="#";
     this.name="Секретка";
@@ -2495,6 +2504,7 @@ var SecretRoomPl=function() {
     this.Dispose=function()
     {}
 }
+
 var ArsenalPl = function() {
     this.help			= "#";
     this.name			= "Арсенал";
@@ -2570,6 +2580,7 @@ var ArsenalPl = function() {
     this.Dispose		= function() {
     }
 }
+
 var MyBoxPl = function() {
     this.help			= "#";
     this.name			= "Сундук";
@@ -2878,6 +2889,7 @@ var SostoyaniePl = function() {
     this.Dispose		= function() {
     }
 }
+
 var SaleResPl = function() {
     this.help			= "#";
     this.name			= "Продажа ресурсов";
@@ -2969,6 +2981,7 @@ var SaleResPl = function() {
     this.Dispose		= function() {
     }
 }
+
 var FloodPL = function () {
     this.help = "";
     this.name = "АвтоФлудер";
@@ -3195,6 +3208,7 @@ var FloodPL = function () {
         }
     }
 }
+
 function str_replace ( search, replace, subject ) {
     if(!(replace instanceof Array)){
         replace=new Array(replace);
@@ -3223,6 +3237,7 @@ function str_replace ( search, replace, subject ) {
     }
     return subject;
 }
+
 function encodeToHex(str){
     var r="";
     var e=str.length;
@@ -3235,6 +3250,7 @@ function encodeToHex(str){
     }
     return r;
 }
+
 var ZagorodPl = function() {
     this.help			= "#";
     this.name			= "Загород";
@@ -3375,7 +3391,6 @@ var ZagorodPl = function() {
         This.QuestHTML += "</table>";
     }
 }
-
 
 var RuinsPl = function() {
     this.help			= "#";
@@ -3733,6 +3748,7 @@ var RedHP = function () {
     this.text = '';
     this.city = '';
     this.setID = 0;
+    this.setName = "Пусто";
     this.count = 0;
     this.countdata = 0;
     this.timer = null;
@@ -3742,14 +3758,36 @@ var RedHP = function () {
     '<td style="width:2px"></td><td style="width:300px">' +
     '<input id="undress_start" type="button" value="Старт" style="width:46px" /><br/>'+
     '     Интервал (сек.):     &nbsp;<input class="undress_textbox" id="undress_interval" type="text" value="60" style="width:14px" /><br/>'+
-    'ID Боевого комплекта:     &nbsp;<input  class="undress_textbox"  id="battleSet_ID" type="text" value="0" style="width:40px" /><br/>'+
-    '<font id="undress_time">* Без ID работать не будет</font><br/>'+
+    '<font id="undress_time">Автосброс остановлен</font><br/>'+
+    '<input id="showsets_start" type="button" value="Выбор" style="width:46px" /><br/>'+
+    '<font id="sets_text1">Выберите боевой комплект:</font><br/><br/>''+
+    '<b>Внимание! Плагин не работает в локациях: Вход в руины, Вход в одиночные сражения.<br/> Отключите во избежании неприятноестей!</b>'+
+
+
     '</td>'+
     '</tr></table>';
+
+    this.SetName = function(name, id){
+        var div_set_text = document.getElementById('sets_text1');
+        console.log(div_set_text);
+        if (id== 0){
+            div_set_text.textContent = "Боевой комплект не выбран!";
+        }
+        else if (id == null){
+            div_set_text.textContent = 'Боевой комплект не существует';
+
+        }
+        else {
+            div_set_text.textContent = 'Выбранный боевой комплект: ' + name;
+
+        }
+    }
+
     this.Start = function (win) {
         if(this.enabled == false)
             this.Dispose();
     }
+
     this.ApplyOptions = function () {
         var This = this;
         if (this.master != null) {
@@ -3762,11 +3800,12 @@ var RedHP = function () {
                     if (!$.isEmptyObject(this.value))
                         This.options = this.value;
                     else
-                        This.options = {interval:5,count:0,text:""};
+                        This.options = {interval:90,setID:0,setName:""};
                 }
             })
         }
     }
+
     this.MenuItem = function () {
         if (this.master != null && this.menuitem == null) {
             var This = this;
@@ -3786,6 +3825,59 @@ var RedHP = function () {
         else
             return this.menuitem;
     }
+
+    this.ShowSets = function(refresh) {
+        var This = this;
+        var FrameSets = top.frames['main'];
+        if (FrameSets.frames['leftmap'] != null) FrameSets = FrameSets.frames['leftmap'];
+        var DivSets = FrameSets.document.getElementById('sets');
+        if (DivSets == null) {
+            this.state = 0;
+            DivSets = FrameSets.document.createElement('div');
+            DivSets.id = 'sets';
+            DivSets.style.position = "absolute";
+            DivSets.style.background = "#d7d7d7";
+            DivSets.style.border = "1px solid #000";
+            DivSets.style.left = "345px";
+            DivSets.style.top = "0px";
+            DivSets.style.padding = "5px";
+            DivSets.style.display = "none";
+            FrameSets.document.body.appendChild(DivSets);
+        }
+        $.ajax({
+            url:"main.php?edit=1",
+            success:function(data) {
+                var i1 = i2 = i3 = 0;
+                var str = "";
+                while (data.indexOf("&complect=", i3) > 0) {
+                    i1 = data.indexOf("&complect=", i3);
+                    i2 = data.indexOf("'", i1);
+                    i3 = data.indexOf('"<', i2);
+                    var set_id = data.substr(i1 + 10, i2 - i1 - 10);
+                    var set_name = data.substr(i2 + 10, i3 - i2 - 10);
+
+                    str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].RHP.SelectSet(" + set_id +",\"" + set_name + "\");return false;'>" + set_name + "</a><br>";
+                }
+
+                str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].RHP.ShowSets(true);return false;'>Обновить комплекты</a><br>";
+                This.contentHTML = str;
+                DivSets.innerHTML = str;
+                DivSets.style.display = "block";
+            }
+        });
+
+
+    }
+
+    this.SelectSet		= function(id, name) {
+
+        var This = this;
+        This.setID = id;
+        This.setName = name;
+        This.SetName(This.setName, This.setID)
+
+    }
+
     this.Enable = function () {
         this.enabled = true;
         var mi = this.MenuItem();
@@ -3793,18 +3885,19 @@ var RedHP = function () {
             mi.removeClass("input_pl_off");
         }
     }
+
     this.Disable = function () {
         clearTimeout(this.timer);
         this.state = 0;
         $('#undress_start').val('Старт');
         $('#undress_interval').attr('readonly', false);
-        $('#battleSet_ID').attr('readonly', false);
         this.enabled = false;
         var mi = this.MenuItem();
         if (mi != null) {
             mi.addClass("input_pl_off");
         }
     }
+
     this.ToggleContent = function () {
         var This = this;
         if (!this.created) {
@@ -3825,16 +3918,9 @@ var RedHP = function () {
                         alert('Интервал не должен быть пустым');
                         error = true;
                     }
-                    var val2 = parseInt($('#battleSet_ID').val());
-                    if (!isNaN(val2)) {
-                        This.setID = val2;
-                    } else {
-                        alert('ID комплекта не должно быть пустым');
-                        error = true;
-                    }
+
                     if (error == false) {
                         $('#undress_interval').attr('readonly', 'readonly');
-                        $('#battleSet_ID').attr('readonly', 'readonly');
                         $('#undress_start').val('Стоп');
                         This.state = 1;
                         var c = /capitalcity/g;
@@ -3846,9 +3932,23 @@ var RedHP = function () {
                         This.Begin();
                     }
                 } else {
+                    This.options.setID = This.setID;
+                    This.options.setName = This.setName;
+                    This.master.SaveOptions();
                     This.Stop();
                 }
             });
+            $("#showsets_start").bind("click", function () {
+                if (This.state == 0){
+                    This.ShowSets();
+
+                } else {
+                    alert("Автосброс HP включен! Для изменения комплекта нажмите кнопу \"Стоп.\"")
+                }
+
+
+            });
+
             $("#undress .undress_textbox").keydown(function(e) {
                 var key = e.charCode || e.keyCode || 0;
                 return (key == 8 || key == 46 || (key >= 48 && key <= 57) || (key >= 96 && key <= 105));
@@ -3856,25 +3956,30 @@ var RedHP = function () {
             $("#undress .undress_textbox").keyup(function() {
                 if (this.id == 'undress_interval') {
                     This.options.interval = parseInt($(this).val(), 10);
-                } else if (this.id == 'battleSet_ID') {
-                    This.options.setID = parseInt($(this).val(), 10);
-                }
-                This.master.SaveOptions();
+                } else
+                    This.master.SaveOptions();
             });
 
             $('#undress_interval').val(this.options.interval);
-            $('#battleSet_ID').val(this.options.setID);
+            This.setID = this.options.setID;
+            This.setName = this.options.setName;
+
             this.created = true;
+
         }
         else {
             $("#undress").toggle();
         }
         this.master.ResizeFrame();
+        This.SetName(This.setName, This.setID);
+
     }
+
     this.Dispose = function () {
         this.created = false;
         this.MenuItem().css("background-color", "");
     }
+
     this.Stop = function () {
         var This = this;
         clearTimeout(This.timer);
@@ -3883,13 +3988,10 @@ var RedHP = function () {
         This.state = 0;
         $('#undress_start').val('Старт');
         $('#undress_interval').attr('readonly', false);
-        $('#battleSet_ID').attr('readonly', false);
-        var div_battleSet_ID = document.getElementById('battleSet_ID');
         var div_undress_time = document.getElementById('undress_time');
-        div_undress_time.textContent = "До следующего сброса: ";
-        alert('Вы прервали работу ресетера');
-        div_battleSet_ID.textContent = "0";
+        div_undress_time.textContent = "Автосброс остановлен: ";
     }
+
     this.DressSet		= function(s) {
         var complect_url = "main.php?edit=1&complect=" + s;
         if (s == 0) complect_url = "main.php?edit=1&undress=all";
@@ -3906,8 +4008,10 @@ var RedHP = function () {
             }
         });
     }
+
     this.Begin = function () {
-        var This = this;
+        This = this;
+
         if (This.setID != 0) {
             var div_undress_time = document.getElementById('undress_time');
             This.undress_timer = (This.interval) - 1;
@@ -3926,8 +4030,8 @@ var RedHP = function () {
                 This.Begin();
             }, This.interval * 1000);
 
-            setTimeout(function() { top.frames["plugin"].PSets.DressSet(0); },0);
-            setTimeout(function() { top.frames["plugin"].PSets.DressSet(This.setID); },500);
+            setTimeout(function() { top.frames["plugin"].RHP.DressSet(0); },0);
+            setTimeout(function() { top.frames["plugin"].RHP.DressSet(This.setID); },500);
 
             This.countdata += 1;
 
@@ -3953,7 +4057,7 @@ PM.AddPlugin(new ZayavkiPl());
 PM.AddPlugin(new SecretRoomPl());
 PM.AddPlugin(new RuinsPl());
 PM.AddPlugin(new SostoyaniePl());
-PM.AddPlugin(new RedHP());
+var RHP = PM.AddPlugin(new RedHP());
 PM.AddPlugin(new Lovuha());
 //PM.AddPlugin(new LovaDetector());
 PM.AddPlugin(new FloodPL());
