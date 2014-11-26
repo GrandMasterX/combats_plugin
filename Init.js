@@ -3,14 +3,16 @@ var Bind = function(e, d, f) {
         if (d.addEventListener) {
             d.addEventListener(e, f, false)
         } else {
-            d.attachEvent("on" e, f)
+            d.attachEvent("on" + e, f)
         }
     } catch (ex) {
     }
 };
 
+
+
 (function($) {
-    $.toJSON	= function(o) {
+    $.toJSON			= function(o) {
         if (typeof(JSON) == 'object' && JSON.stringify)
             return JSON.stringify(o);
         var type = typeof(o);
@@ -19,86 +21,81 @@ var Bind = function(e, d, f) {
         if (type == "undefined")
             return undefined;
         if (type == "number" || type == "boolean")
-            return o "";
+            return o + "";
         if (type == "string")
             return $.quoteString(o);
         if (type == 'object') {
             if (typeof o.toJSON == "function")
                 return $.toJSON(o.toJSON());
             if (o.constructor === Date) {
-                var month = o.getUTCMonth() 1;
-                if (month < 10)month = '0' month;
+                var month = o.getUTCMonth() + 1;
+                if (month < 10)month = '0' + month;
                 var day = o.getUTCDate();
-                if (day < 10)day = '0' day;
+                if (day < 10)day = '0' + day;
                 var year = o.getUTCFullYear();
                 var hours = o.getUTCHours();
-                if (hours < 10)hours = '0' hours;
+                if (hours < 10)hours = '0' + hours;
                 var minutes = o.getUTCMinutes();
-                if (minutes < 10)minutes = '0' minutes;
+                if (minutes < 10)minutes = '0' + minutes;
                 var seconds = o.getUTCSeconds();
-                if (seconds < 10)seconds = '0' seconds;
+                if (seconds < 10)seconds = '0' + seconds;
                 var milli = o.getUTCMilliseconds();
-                if (milli < 100)milli = '0' milli;
-                if (milli < 10)milli = '0' milli;
-                return'"' year '-' month '-' day 'T'
-                hours ':' minutes ':' seconds '.' milli 'Z"';
+                if (milli < 100)milli = '0' + milli;
+                if (milli < 10)milli = '0' + milli;
+                return'"' + year + '-' + month + '-' + day + 'T' +
+                hours + ':' + minutes + ':' + seconds + '.' + milli + 'Z"';
             }
             if (o.constructor === Array) {
                 var ret = [];
-                for (var i = 0; i < o.length; i )
+                for (var i = 0; i < o.length; i++)
                     ret.push($.toJSON(o[i]) || "null");
-                return"[" ret.join(",") "]";
+                return"[" + ret.join(",") + "]";
             }
             var pairs = [];
             for (var k in o) {
                 var name;
                 var type = typeof k;
                 if (type == "number")
-                    name = '"' k '"'; else if (type == "string")
+                    name = '"' + k + '"'; else if (type == "string")
                     name = $.quoteString(k); else
                     continue;
                 if (typeof o[k] == "function")
                     continue;
                 var val = $.toJSON(o[k]);
-                pairs.push(name ":" val);
+                pairs.push(name + ":" + val);
             }
-            return"{" pairs.join(", ") "}";
+            return"{" + pairs.join(", ") + "}";
         }
     };
-    $.evalJSON	= function(src) {
+    $.evalJSON			= function(src) {
         if (typeof(JSON) == 'object' && JSON.parse)
             return JSON.parse(src);
-        return eval("(" src ")");
+        return eval("(" + src + ")");
     };
     $.secureEvalJSON	= function(src) {
         if (typeof(JSON) == 'object' && JSON.parse)
             return JSON.parse(src);
         var filtered = src;
-        filtered = filtered.replace(/\["\/bfnrtu]/g, '@');
-        filtered = filtered.replace(/"[^"\
-]*"|true|false|null|-?d (?:.d*)?(?:[eE][ -]?d )?/g, ']');
-        filtered = filtered.replace(/(?:^|:|,)(?:s*[) /g, '');
-if (/^[],:{}s]*$/.test(filtered))
-        return eval("(" src ")"); else
-        throw new SyntaxError("Error parsing JSON, source is not valid.");
+        filtered = filtered.replace(/\\["\\\/bfnrtu]/g, '@');
+        filtered = filtered.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
+        filtered = filtered.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
+        if (/^[\],:{}\s]*$/.test(filtered))
+            return eval("(" + src + ")"); else
+            throw new SyntaxError("Error parsing JSON, source is not valid.");
     };
-    $.quoteString	= function(string) {
+    $.quoteString		= function(string) {
         if (string.match(_escapeable)) {
-            return'"' string.replace(_escapeable, function (a) {
+            return'"' + string.replace(_escapeable, function (a) {
                 var c = _meta[a];
                 if (typeof c === 'string')return c;
                 c = a.charCodeAt();
-                return'\u00' Math.floor(c / 16).toString(16) (c % 16).toString(16);
-            }) '"';
+                return'\\u00' + Math.floor(c / 16).toString(16) + (c % 16).toString(16);
+            }) + '"';
         }
-        return'"' string '"';
+        return'"' + string + '"';
     };
-    var _escapeable = /["\--]/g;
-    var _meta = {'b':'\b', 't':'\t', '
-        ':'
-        ', 'f':'\f', '
-    ':'
-    ', '"':'\"', '\':'\\'};
+    var _escapeable = /["\\\x00-\x1f\x7f-\x9f]/g;
+    var _meta = {'\b':'\\b', '\t':'\\t', '\n':'\\n', '\f':'\\f', '\r':'\\r', '"':'\\"', '\\':'\\\\'};
 })(jQuery);
 
 jQuery.cookie = function(name, value, options) {
@@ -113,24 +110,24 @@ jQuery.cookie = function(name, value, options) {
             var date;
             if (typeof options.expires == 'number') {
                 date = new Date();
-                date.setTime(date.getTime() (options.expires * 24 * 60 * 60 * 1000));
+                date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
             } else {
                 date = options.expires;
             }
-            expires = '; expires=' date.toUTCString();
+            expires = '; expires=' + date.toUTCString();
         }
-        var path = options.path ? '; path=' (options.path) : '';
-        var domain = options.domain ? '; domain=' (options.domain) : '';
+        var path = options.path ? '; path=' + (options.path) : '';
+        var domain = options.domain ? '; domain=' + (options.domain) : '';
         var secure = options.secure ? '; secure' : '';
         document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
     } else {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
             var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i ) {
+            for (var i = 0; i < cookies.length; i++) {
                 var cookie = jQuery.trim(cookies[i]);
-                if (cookie.substring(0, name.length 1) == (name '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length 1));
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
                 }
             }
@@ -239,12 +236,23 @@ var PluginMaster = function(init_html) {
             this.default_state = false;
         }
         var This = this;
+
         $.ajax({
             url:"main.php?edit=1",
             success:function(data) {
+
                 var regex = /<B>(.*?)<\/B> \[(\d+)\]<a href=inf\.php\?(\d+) target/;
+                var regex1 = /klan\/(.*?)\.gif/;
+
                 var res = data.match(regex);
-                if (res && res.length  class="underline"> 1) {
+                var res1 = data.match(regex1);
+
+                if (res1 && res1.length > 1) {
+                    This.user.clan = res1[1];
+                }
+
+
+                if (res && res.length > 1) {
                     This.user.name = res[1];
                     var TempInt = parseInt(res[2], 10);
                     if (isNaN(TempInt)) {
@@ -258,57 +266,33 @@ var PluginMaster = function(init_html) {
                     } else {
                         This.user.id = TempInt;
                     }
+
+                    if (!((This.user.clan == "MMercenaries") ||  (This.user.clan == "BlackAces"))){
+
+
+                        var temp002 = This.global_options.length;
+                        for (var i = 0; i < temp002; i++) {
+                            This.plugins[i].Disable();
+                            if (This.plugins[i].id == "lova") {
+                                This.plugins[i].contentHTML = "";
+                                This.plugins[i].menuitem[0].outerHTML = "";
+                                This.plugins[i].menuitem[0].hidden = true;
+
+                            }
+
+                            if (This.plugins[i].id == "Nastroika") {
+                                console.log(This.plugins[i].contentHTML) ;
+                            }
+                        }
+                    }
+
+                    console.log(This.plugins);
+
+
                     if (This.user.id == 146790 || This.user.id == 487171 || This.user.id == 21657 ||
-                        This.user.id == 489778 || This.user.id == 166074 || This.user.id == 489842 ||
-                        This.user.id == 535834 || This.user.id == 579909 || This.user.id == 256683
-                    //|| This.user.id == 431523 /*Ковшик из BlackAces*/
-                    //|| This.user.id == 53821 /*Незванный*/
-                    //|| This.user.id == 539387 /*- Homer Simpson -*/
-                    // клан-вара BlackAces ||
-                    //||
-                    //This.user.id == 431523 /*Ковшик из BlackAces*/||
-                    //This.user.id == 34988 /*-koks-*/||
-                    //This.user.id == 286538 /*-Zmei-*/||
-                    //This.user.id == 395988 /*-И­рика- - Глава клана*/||
-                    //This.user.id == 72822 /*dan4ik*/||
-                    //This.user.id == 403782 /*Dobbin*/||
-                    //This.user.id == 12997 /*I love NYC*/||
-                    //This.user.id == 610510 /*keed*/||
-                    //This.user.id == 467010 /*Томат*/||
-                    //This.user.id == 412286 /*Baghirov*/||
-                    //This.user.id == 448127 /*Козырный Король*/||
-                    //This.user.id == 99300 /*Непокоримый*/||
-                    //This.user.id == 13172 /*Негодяй*/||
-                    //This.user.id == 437990 /*Torques*/||
-                    //This.user.id == 123234 /*Offizier*/||
-                    //This.user.id == 459833 /*Аватарь*/||
-                    //This.user.id == 179419 /*Беспредельный ТуЗ*/||
-                    //This.user.id == 527414 /*Шура Каретный*/||
-                    //This.user.id == 27071 /*black hole*/||
-                    //This.user.id == 350058 /*РусДрагос*/||
-                    //This.user.id == 7420 /*Убийца Легавых*/||
-                    //This.user.id == 18318 /*NegaL*/||
-                    //This.user.id == 8534 /*Ronin*/||
-                    //This.user.id == 292041 /*Dominikanec*/||
-                    //This.user.id == 13352 /*SaV1oR*/||
-                    //This.user.id == 611013 /*Брат Мо*/||
-                    //This.user.id == 617714 /*Козырная Дама*/||
-                    //This.user.id == 13178 /*Убийца Лягавых*/||
-                    //This.user.id == 11249 /*Пьяный Викинг*/||
-                    //This.user.id == 612817 /*s7ress*/||
-                    //This.user.id == 13375 /*Monterei*/||
-                    //This.user.id == 257747 /*Kamar*/||
-                    //This.user.id == 446870 /*Virdo_ tora*/||
-                    //This.user.id == 218820 /* ГадскийГад - покинул клан*/||
-                    //This.user.id == 514148 /* agentSp1ko - покинул клан*/||
-                    //This.user.id == 25678 /* Bender - в блоке*/||
-                    //This.user.id == 473714 /* Moreau - рекрут не играет*/||
-                    //This.user.id == 123586 /* Интубатор - рекрут не играет*/||
-                    //This.user.id == 475182 /* strike - рекрут не играет*/||
-                    //This.user.id == 267350 /* Читер - рекрут не играет*/||
-                    //This.user.id == 125990 /* ПОРОХ - рекрут не играет*/||
-                    //This.user.id == 138149 /* Kill You- рекрут*/||
-                    //This.user.id == 219679 /*1shot-_-1kill - Глава рекрутов*/
+                        This.user.id == 489778 || This.user.id == 166074 || This.user.id == 4898642 ||
+                        This.user.id == 535834 || This.user.id == 579909 || This.user.id == 25683
+
                     ) {
                         var temp002 = This.global_options.length;
                         for (var i = 0; i < temp002; i++) {
@@ -406,33 +390,15 @@ var NastroikaPl = function() {
                     $("#nastroika tr").append(td);
                 }
                 var Sid01 = "";
-                Sid01 = this.id;
-                if (Sid01 == "AutoUdar")
-                    Sid01 = " class='example_au_check' id='au_check'";
-                else {
-                    if (Sid01 == "AutoUdarOld")
-                        Sid01 = " class='example_auo_check' id='auo_check'";
-                    else
-                        Sid01 = " class='example_all_check'";
-                }
+                Sid01 = " class='example_all_check'";
+
                 var check_input = $("<input type='checkbox'" +  Sid01 + "/>");
                 var This2 = this;
                 check_input.change(function () {
                     if (This2.enabled)
                         This2.Disable();
                     else {
-                        if (This2.id == "AutoUdar") {
-                            ASO.Disable();
-                            ASO.master.SaveOptions();
-                            $("#auo_check").attr("checked", false);
-                        }
-                        else {
-                            if (This2.id == "AutoUdarOld") {
-                                AS.Disable();
-                                AS.master.SaveOptions();
-                                $("#au_check").attr("checked", false);
-                            }
-                        }
+
                         This2.Enable();
                     }
                     This2.master.SaveOptions();
@@ -3547,18 +3513,12 @@ var Lovuha = function () {
     this.countdata = 0;
     this.timeOfLastLova = "";
     this.indexOfLastLova = 0;
-
-
     this.timer = null;
     this.undress_timer_end = null;
     this.undress_timer = 0;
     this.contentHTML	= '<table id="lova" cellpadding="0"><tr valign="top">'+
     '<td style="width:2px"></td><td style="width:127px">' +
     '<input id="lova_start" type="button" value="Старт" style="width:46px" /><br/>'+
-
-
-        //'<font id="sound_url">Адресс звукового файла:</font><br/>'+
-        //'<textarea id="sound_url" rows="4" cols="140"></textarea>'+
     '</td>'+
     '</tr></table>';
     this.Start = function (win) {
@@ -3608,7 +3568,6 @@ var Lovuha = function () {
             mi.removeClass("input_pl_off");
         }
     }
-
     this.Disable = function () {
         clearTimeout(this.timer);
         this.state = 0;
@@ -3621,15 +3580,14 @@ var Lovuha = function () {
             mi.addClass("input_pl_off");
         }
     }
-
-
-
-
-
     this.ToggleContent = function () {
         var This = this;
         if (!this.created) {
             $(this.cid).html(this.contentHTML);
+            //После переключения к другому плагину обновляем состояние текста
+            if (This.state == 1){
+                $('#lova_start').val('Стоп');
+            }
 
             $("#lova_start").bind("click", function () {
                 if (This.state == 0) {
@@ -3660,14 +3618,7 @@ var Lovuha = function () {
                 }
             });
 
-
             This.master.SaveOptions();
-            //});
-            //$("#flood #flood_text").keyup(function() {
-            //	This.options.text = $(this).val();
-            //	This.master.SaveOptions();
-            //});
-            //$('#sound_url').val(this.options.text);
 
             this.created = true;
         }
@@ -3680,7 +3631,6 @@ var Lovuha = function () {
         this.created = false;
         this.MenuItem().css("background-color", "");
     }
-
     this.Stop = function () {
         var This = this;
         clearTimeout(This.timer);
@@ -3760,34 +3710,26 @@ var RedHP = function () {
     '     Интервал (сек.):     &nbsp;<input class="undress_textbox" id="undress_interval" type="text" value="60" style="width:14px" /><br/>'+
     '<font id="undress_time">Автосброс остановлен</font><br/>'+
     '<input id="showsets_start" type="button" value="Выбор" style="width:46px" /><br/>'+
-    '<font id="sets_text1">Выберите боевой комплект:</font><br/><br/>''+
+    '<font id="sets_text1">Выберите боевой комплект:</font><br/><br/>'+
     '<b>Внимание! Плагин не работает в локациях: Вход в руины, Вход в одиночные сражения.<br/> Отключите во избежании неприятноестей!</b>'+
-
-
     '</td>'+
     '</tr></table>';
-
     this.SetName = function(name, id){
         var div_set_text = document.getElementById('sets_text1');
-        console.log(div_set_text);
         if (id== 0){
             div_set_text.textContent = "Боевой комплект не выбран!";
         }
         else if (id == null){
             div_set_text.textContent = 'Боевой комплект не существует';
-
         }
         else {
             div_set_text.textContent = 'Выбранный боевой комплект: ' + name;
-
         }
     }
-
     this.Start = function (win) {
         if(this.enabled == false)
             this.Dispose();
     }
-
     this.ApplyOptions = function () {
         var This = this;
         if (this.master != null) {
@@ -3805,7 +3747,6 @@ var RedHP = function () {
             })
         }
     }
-
     this.MenuItem = function () {
         if (this.master != null && this.menuitem == null) {
             var This = this;
@@ -3813,6 +3754,7 @@ var RedHP = function () {
             This.cid = this.master.content_id;
             var menu_item = $('<input type="button" value="Автосброс HP"/>');
             menu_item.bind('click', function () {
+
                 if (This.master.Current != This) {
                     This.master.Current.Dispose();
                 }
@@ -3825,7 +3767,6 @@ var RedHP = function () {
         else
             return this.menuitem;
     }
-
     this.ShowSets = function(refresh) {
         var This = this;
         var FrameSets = top.frames['main'];
@@ -3855,11 +3796,11 @@ var RedHP = function () {
                     i3 = data.indexOf('"<', i2);
                     var set_id = data.substr(i1 + 10, i2 - i1 - 10);
                     var set_name = data.substr(i2 + 10, i3 - i2 - 10);
-
                     str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].RHP.SelectSet(" + set_id +",\"" + set_name + "\");return false;'>" + set_name + "</a><br>";
                 }
 
                 str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].RHP.ShowSets(true);return false;'>Обновить комплекты</a><br>";
+
                 This.contentHTML = str;
                 DivSets.innerHTML = str;
                 DivSets.style.display = "block";
@@ -3902,35 +3843,55 @@ var RedHP = function () {
         var This = this;
         if (!this.created) {
             $(this.cid).html(this.contentHTML);
+
+            //После переключения к другому плагину обновляем состояние текста
+            if (This.state == 1){
+                $('#undress_start').val('Стоп');
+                This.SetName(This.setName, This.setID);
+                document.getElementById('undress_time').textContent = "Автосброс работает! ";
+                $('#undress_interval').attr('readonly', 'readonly');
+
+            }
+
             $("#undress_start").bind("click", function () {
                 if (This.state == 0) {
-                    var error = false;
-                    if(This.enabled == false)
-                    {
-                        alert("Плагин выключен. Перейдите в пункт верхнего меню *Настройки* и включите его");
-                        error = true;
+
+                    //Запрет на запуск без комплекта
+                    if((This.setID == 0)&&(This.options.setID == 0)){
+                        alert("Сначала выберите боевой комплект!");
+                    }
+                    else{
+                        var error = false;
+                        if(This.enabled == false)
+                        {
+                            alert("Плагин выключен. Перейдите в пункт верхнего меню *Настройки* и включите его");
+                            error = true;
+                        }
+
+                        var val1 = parseInt($('#undress_interval').val());
+                        if (!isNaN(val1)) {
+                            This.interval = val1;
+                        } else {
+                            alert('Интервал не должен быть пустым');
+                            error = true;
+                        }
+
+                        if (error == false) {
+                            $('#undress_interval').attr('readonly', 'readonly');
+                            $('#undress_start').val('Стоп');
+                            This.state = 1;
+                            var c = /capitalcity/g;
+                            if (top.frames["main"].location.href.match(c))
+                                This.city = 'capitalcity';
+                            else
+                                This.city = 'avaloncity';
+                            This.countdata = 0;
+                            This.Begin();
+                        }
+
                     }
 
-                    var val1 = parseInt($('#undress_interval').val());
-                    if (!isNaN(val1)) {
-                        This.interval = val1;
-                    } else {
-                        alert('Интервал не должен быть пустым');
-                        error = true;
-                    }
 
-                    if (error == false) {
-                        $('#undress_interval').attr('readonly', 'readonly');
-                        $('#undress_start').val('Стоп');
-                        This.state = 1;
-                        var c = /capitalcity/g;
-                        if (top.frames["main"].location.href.match(c))
-                            This.city = 'capitalcity';
-                        else
-                            This.city = 'avaloncity';
-                        This.countdata = 0;
-                        This.Begin();
-                    }
                 } else {
                     This.options.setID = This.setID;
                     This.options.setName = This.setName;
@@ -3989,7 +3950,7 @@ var RedHP = function () {
         $('#undress_start').val('Старт');
         $('#undress_interval').attr('readonly', false);
         var div_undress_time = document.getElementById('undress_time');
-        div_undress_time.textContent = "Автосброс остановлен: ";
+        div_undress_time.textContent = "Автосброс остановлен! ";
     }
 
     this.DressSet		= function(s) {
@@ -3998,13 +3959,7 @@ var RedHP = function () {
         $.ajax({
             url:complect_url,
             success:function(data) {
-                var FrameSets = top.frames['main'];
-                if (FrameSets.frames['leftmap'] != null) {
-                    FrameSets = FrameSets.frames['leftmap'];
-                    FrameSets.location.href = "map.php?side=left&nocache";
-                } else {
-                    FrameSets.location.href = "main.php";
-                }
+
             }
         });
     }
@@ -4039,6 +3994,238 @@ var RedHP = function () {
     }
 }
 
+var RunAway = function () {
+    this.help = "";
+    this.name = "Бег по комнатам";
+    this.id = "run";
+    this.master = null;
+    this.menuitem = null;
+    this.state = 0;
+    this.enabled = true;
+    this.options = {};
+    this.interval = 0;
+    this.text = '';
+    this.city = '';
+    this.count = 0;
+    this.countdata = 0;
+    this.timer = null;
+    this.contentHTML = '<table style="width:600px" id="run" cellpadding="0"><tr valign="top">' +
+        //'<tr><td style="width:2px"></td><td ></td></tr>' +
+    '<td><input name="room_list" type="checkbox" value="room1" checked>Комната для новичков </td>' +
+    '<td><input name="room_list" type="checkbox" value="room2" checked>Комната для новичков 2 </td>' +
+    '<td><input name="room_list" type="checkbox" value="room3" checked>Комната для новичков 3 </td>' +
+    '<td><input name="room_list" type="checkbox" value="room4" checked>Комната для новичков 4 </td></tr>' +
+    '<tr><td><input name="room_list" type="checkbox" value="room5" checked>Зал Воинов </td>' +
+    '<td><input name="room_list" type="checkbox" value="room6" checked>Зал Воинов 2 </td>' +
+    '<td><input name="room_list" type="checkbox" value="room7" checked>Зал Воинов 3 </td>' +
+    '<td><input name="room_list" type="checkbox" value="room8" checked>Торговый Зал </td></tr>' +
+    '<tr><td><input name="room_list" type="checkbox" value="room9" checked>Рыцарский зал </td>' +
+    '<td><input name="room_list" type="checkbox" value="room10" checked>Башня рыцарей-магов </td></tr>' +
+
+
+    '<tr><td><input id="run_start" type="button" value="Старт" style="width:46px" /><td></tr>' +
+    '<tr ><td>    Интервал (сек.):     &nbsp;<input class="undress_textbox" id="run_interval" type="text" value="60" style="width:14px" /><td>' +
+
+    '</tr></table>';
+    this.Start = function (win) {
+        if (this.enabled == false)
+            this.Dispose();
+    }
+    this.ApplyOptions = function () {
+        var This = this;
+        if (this.master != null) {
+            $(this.master.global_options).each(function () {
+                if (this.id == This.id) {
+                    if (this.enabled)
+                        This.Enable();
+                    else
+                        This.Disable();
+                    if (!$.isEmptyObject(this.value))
+                        This.options = this.value;
+                    else
+                        This.options = {interval: 5, count: 0, text: ""};
+                }
+            })
+        }
+    }
+    this.MenuItem = function () {
+        if (this.master != null && this.menuitem == null) {
+
+
+            var This = this;
+            This.mid = this.master.menu_id;
+            This.cid = this.master.content_id;
+            var menu_item = $('<input type="button" value="Бег по комнатам"/>');
+            menu_item.bind('click', function () {
+
+                if (This.master.Current != This) {
+                    This.master.Current.Dispose();
+                }
+                This.master.Current = This;
+                This.ToggleContent();
+
+
+            })
+            this.menuitem = $(menu_item);
+            return this.menuitem;
+        }
+        else
+            return this.menuitem;
+    }
+    this.Enable = function () {
+        this.enabled = true;
+        var mi = this.MenuItem();
+        if (mi != null) {
+            mi.removeClass("input_pl_off");
+        }
+    }
+    this.Disable = function () {
+        clearTimeout(this.timer);
+        this.state = 0;
+        $('#run_start').val('Старт');
+        $('#run_interval').attr('readonly', false);
+        this.enabled = false;
+        var mi = this.MenuItem();
+        if (mi != null) {
+            mi.addClass("input_pl_off");
+        }
+    }
+    this.ToggleContent = function () {
+        var This = this;
+        if (!this.created) {
+            $(this.cid).html(this.contentHTML);
+
+            //После переключения к другому плагину обновляем состояние текста
+            if (This.state == 1){
+                $('#run_start').val('Стоп');
+
+            }
+            $("#run_start").bind("click", function () {
+                if (This.state == 0) {
+                    var error = false;
+                    if (This.enabled == false) {
+                        alert("Плагин выключен. Перейдите в пункт верхнего меню *Настройки* и включите его");
+                        error = true;
+                    }
+
+                    var val1 = parseInt($('#run_interval').val());
+                    if (!isNaN(val1)) {
+                        This.interval = val1;
+                    } else {
+                        alert('Интервал не должен быть пустым');
+                        error = true;
+                    }
+
+                    if (error == false) {
+                        $('#run_interval').attr('readonly', 'readonly');
+                        $('#run_start').val('Стоп');
+                        This.state = 1;
+                        var c = /capitalcity/g;
+                        if (top.frames["main"].location.href.match(c))
+                            This.city = 'capitalcity';
+                        else
+                            This.city = 'avaloncity';
+                        This.countdata = 0;
+                        This.Begin();
+
+                    }
+                } else {
+                    This.Stop();
+                }
+            });
+            $("#run .run_textbox").keydown(function (e) {
+                var key = e.charCode || e.keyCode || 0;
+                return (key == 8 || key == 46 || (key >= 48 && key <= 57) || (key >= 96 && key <= 105));
+            });
+            $("#run .run_textbox").keyup(function () {
+                if (this.id == 'run_interval') {
+                    This.options.interval = parseInt($(this).val(), 10);
+                }
+                This.master.SaveOptions();
+            });
+
+            $('#run_interval').val(this.options.interval);
+            this.created = true;
+        }
+        else {
+            $("#run").toggle();
+        }
+        this.master.ResizeFrame();
+    }
+    this.Dispose = function () {
+        this.created = false;
+        this.MenuItem().css("background-color", "");
+    }
+    this.Stop = function () {
+        var This = this;
+        clearTimeout(This.timer);
+        clearInterval(This.undress_timer_end);
+        This.countdata = 0;
+        This.state = 0;
+        $('#run_start').val('Старт');
+        $('#run_interval').attr('readonly', false);
+        alert('Вы прервали работу автобега');
+    }
+    this.RunForestRun = function (room) {
+        var run_url = "main.php?setch=1&got=1&" +room+ "=%C2%EE%E9%F2%E8";
+
+        if (room == 0) run_url = "main.php";
+        $.ajax({
+            url: run_url,
+            success: function (data) {
+
+            }
+        });
+    }
+    this.Begin = function () {
+        var This = this;
+
+        function count_rooms() {
+            var count = 0;
+            for (var i = 0; i < document.getElementsByName("room_list").length; i++) {
+                if (document.getElementsByName("room_list")[i].checked == true){
+                    count++;
+                }
+
+            }
+            return(count);
+        }
+
+        function next_rooms() {
+            var next = -1;
+            while (next == -1) {
+                next = Math.floor(Math.random() * document.getElementsByName("room_list").length);
+                if (document.getElementsByName("room_list")[next].checked != true)
+                    next = -1;
+            }
+            return next;
+        }
+
+        function change_room(room_name) {
+            This.RunForestRun(room_name);
+        }
+
+        var room_count = count_rooms();
+        if (room_count < 2) {
+            alert("Выберите минимум две комнаты");
+        }
+        else{
+            if (This.state != 0){
+                start_run()
+            }
+        }
+
+        function start_run() {
+            if (This.state != 0){
+                var next = next_rooms();
+                change_room(document.getElementsByName("room_list")[next].value);
+                setTimeout(start_run, This.interval*1000);
+            }
+
+        }
+    }
+}
+
 
 var InitHTML = '<table id="main_table" border="0" cellspacing="0"><tr><td id="left_m" style="border-bottom: 1px solid #888;"></td>' +
     '<td id="right_m" style="border-bottom: 1px solid #888;" nowrap><a target="_blank" title="Блог для жалоб и пожеланий" href="http://old-mercenaries.ru/index.php" class="underline">Справка&nbsp;</a>|&nbsp;<a href="http://old-mercenaries.ru/index.php" target="_blank"><img border="0" title="-GrandMaster-" src="http://i.oldbk.com/i/align_2.gif"></a><a href="http://old-mercenaries.ru/index.php" target="_blank"><img title="Клан Mercenaries" src="http://i.oldbk.com/i/klan/Mercenaries.gif"></a>&nbsp;|&nbsp;<a target="_blank" title="Данный плагин при каждом Вашем заходе в Игру \nобращается к клан-сайту Mercenaries за своими библиотеками, \nесли Вы с этим не согласны - Вы имеете право \nотказаться от его использования" href="http://oldbk.com/forum.php?konftop=18&topic=229596636" class="underline"><font color="red">ВНИМАНИЕ!!!</font>&nbsp;</a>|&nbsp;</td></tr>' +
@@ -4048,22 +4235,38 @@ PM.Init();
 PM.AddPlugin(new NastroikaPl());
 var AS = PM.AddPlugin(new AutoUdarPl());
 var ASO = PM.AddPlugin(new AutoUdarOldPl());
-PM.AddPlugin(new LabaPilotPl());
-PM.AddPlugin(new ZagorodPl());
 var PSets = PM.AddPlugin(new SetsPl());
-PM.AddPlugin(new ArsenalPl());
-PM.AddPlugin(new MyBoxPl());
-PM.AddPlugin(new ZayavkiPl());
-PM.AddPlugin(new SecretRoomPl());
-PM.AddPlugin(new RuinsPl());
-PM.AddPlugin(new SostoyaniePl());
 var RHP = PM.AddPlugin(new RedHP());
-PM.AddPlugin(new Lovuha());
-//PM.AddPlugin(new LovaDetector());
-PM.AddPlugin(new FloodPL());
 var PSale = PM.AddPlugin(new SaleResPl());
-var SS = PM.AddService(new SiteServices());
-PM.AddService(new RadioService());
-PM.Complete();
-PM.CurrentS = SS;
 
+
+
+
+setTimeout(function() {
+
+
+    PM.AddPlugin(new LabaPilotPl());
+    PM.AddPlugin(new ZagorodPl());
+    PM.AddPlugin(new ArsenalPl());
+    PM.AddPlugin(new MyBoxPl());
+    PM.AddPlugin(new ZayavkiPl());
+    PM.AddPlugin(new SecretRoomPl());
+    PM.AddPlugin(new RuinsPl());
+    PM.AddPlugin(new SostoyaniePl());
+    PM.AddPlugin(new Lovuha());
+    //PM.AddPlugin(new LovaDetector());
+    PM.AddPlugin(new FloodPL());
+    var SS = PM.AddService(new SiteServices());
+    PM.AddService(new RadioService());
+    PM.Complete();
+    PM.CurrentS = SS;
+
+    if  ((PM.user.clan == "Mercenaries") ||  (PM.user.clan == "BlackAces")){
+        PM.AddPlugin(new RunAway());
+        PM.AddPlugin(new Lovuha());
+        PM.Complete();
+        PM.CurrentS = SS;
+
+    }
+
+}, 2000)
