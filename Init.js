@@ -267,26 +267,7 @@ var PluginMaster = function(init_html) {
                         This.user.id = TempInt;
                     }
 
-                    if (!((This.user.clan == "MMercenaries") ||  (This.user.clan == "BlackAces"))){
 
-
-                        var temp002 = This.global_options.length;
-                        for (var i = 0; i < temp002; i++) {
-                            This.plugins[i].Disable();
-                            if (This.plugins[i].id == "lova") {
-                                This.plugins[i].contentHTML = "";
-                                This.plugins[i].menuitem[0].outerHTML = "";
-                                This.plugins[i].menuitem[0].hidden = true;
-
-                            }
-
-                            if (This.plugins[i].id == "Nastroika") {
-                                console.log(This.plugins[i].contentHTML) ;
-                            }
-                        }
-                    }
-
-                    console.log(This.plugins);
 
 
                     if (This.user.id == 146790 || This.user.id == 487171 || This.user.id == 21657 ||
@@ -390,15 +371,33 @@ var NastroikaPl = function() {
                     $("#nastroika tr").append(td);
                 }
                 var Sid01 = "";
-                Sid01 = " class='example_all_check'";
-
+                Sid01 = this.id;
+                if (Sid01 == "AutoUdar")
+                    Sid01 = " class='example_au_check' id='au_check'";
+                else {
+                    if (Sid01 == "AutoUdarOld")
+                        Sid01 = " class='example_auo_check' id='auo_check'";
+                    else
+                        Sid01 = " class='example_all_check'";
+                }
                 var check_input = $("<input type='checkbox'" +  Sid01 + "/>");
                 var This2 = this;
                 check_input.change(function () {
                     if (This2.enabled)
                         This2.Disable();
                     else {
-
+                        if (This2.id == "AutoUdar") {
+                            ASO.Disable();
+                            ASO.master.SaveOptions();
+                            $("#auo_check").attr("checked", false);
+                        }
+                        else {
+                            if (This2.id == "AutoUdarOld") {
+                                AS.Disable();
+                                AS.master.SaveOptions();
+                                $("#au_check").attr("checked", false);
+                            }
+                        }
                         This2.Enable();
                     }
                     This2.master.SaveOptions();
@@ -3693,7 +3692,7 @@ var RedHP = function () {
     this.menuitem = null;
     this.state = 0;
     this.enabled = true;
-    this.options = {};
+    this.options = {interval:90,setID:0,setName:""};
     this.interval = 0;
     this.text = '';
     this.city = '';
@@ -3704,16 +3703,17 @@ var RedHP = function () {
     this.timer = null;
     this.undress_timer_end = null;
     this.undress_timer = 0;
-    this.contentHTML	= '<table id="undress" cellpadding="0"><tr valign="top">'+
-    '<td style="width:2px"></td><td style="width:300px">' +
-    '<input id="undress_start" type="button" value="Старт" style="width:46px" /><br/>'+
-    '     Интервал (сек.):     &nbsp;<input class="undress_textbox" id="undress_interval" type="text" value="60" style="width:14px" /><br/>'+
-    '<font id="undress_time">Автосброс остановлен</font><br/>'+
-    '<input id="showsets_start" type="button" value="Выбор" style="width:46px" /><br/>'+
-    '<font id="sets_text1">Выберите боевой комплект:</font><br/><br/>'+
-    '<b>Внимание! Плагин не работает в локациях: Вход в руины, Вход в одиночные сражения.<br/> Отключите во избежании неприятноестей!</b>'+
-    '</td>'+
-    '</tr></table>';
+    var defoltContent = '<table id="undress" cellpadding="0"><tr valign="top">'+
+        '<td style="width:2px"></td><td style="width:300px">' +
+        '<input id="undress_start" type="button" value="Старт" style="width:46px" /><br/>'+
+        '     Интервал (сек.):     &nbsp;<input class="undress_textbox" id="undress_interval" type="text" value="60" style="width:14px" /><br/>'+
+        '<font id="undress_time">Автосброс остановлен</font><br/>'+
+        '<input id="showsets_start" type="button" value="Выбор" style="width:46px" /><br/>'+
+        '<font id="sets_text1">Выберите боевой комплект:</font><br/><br/>'+
+        '<b>Внимание! Плагин не работает в локациях: Вход в руины, Вход в одиночные сражения.<br/> Отключите во избежании неприятноестей!</b>'+
+        '</td>'+
+        '</tr></table>';
+    this.contentHTML	= defoltContent;
     this.SetName = function(name, id){
         var div_set_text = document.getElementById('sets_text1');
         if (id== 0){
@@ -3801,7 +3801,6 @@ var RedHP = function () {
 
                 str += "<a href='#' onclick='this.parentNode.style.display=\"none\";top.frames[\"plugin\"].RHP.ShowSets(true);return false;'>Обновить комплекты</a><br>";
 
-                This.contentHTML = str;
                 DivSets.innerHTML = str;
                 DivSets.style.display = "block";
             }
@@ -3845,6 +3844,7 @@ var RedHP = function () {
             $(this.cid).html(this.contentHTML);
 
             //После переключения к другому плагину обновляем состояние текста
+
             if (This.state == 1){
                 $('#undress_start').val('Стоп');
                 This.SetName(This.setName, This.setID);
@@ -3932,11 +3932,14 @@ var RedHP = function () {
             $("#undress").toggle();
         }
         this.master.ResizeFrame();
+
         This.SetName(This.setName, This.setID);
 
     }
 
     this.Dispose = function () {
+        var This = this;
+        This.master.SaveOptions();
         this.created = false;
         this.MenuItem().css("background-color", "");
     }
