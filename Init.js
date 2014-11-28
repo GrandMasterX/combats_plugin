@@ -4254,7 +4254,7 @@ setTimeout(function() {
     PM.AddPlugin(new MyBoxPl());
     PM.AddPlugin(new ZayavkiPl());
     PM.AddPlugin(new SecretRoomPl());
-    PM.AddPlugin(new RuinsPl());
+    //PM.AddPlugin(new RuinsPl());
     PM.AddPlugin(new SostoyaniePl());
     //PM.AddPlugin(new LovaDetector());
     PM.AddPlugin(new FloodPL());
