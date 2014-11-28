@@ -4256,7 +4256,6 @@ setTimeout(function() {
     PM.AddPlugin(new SecretRoomPl());
     PM.AddPlugin(new RuinsPl());
     PM.AddPlugin(new SostoyaniePl());
-    PM.AddPlugin(new Lovuha());
     //PM.AddPlugin(new LovaDetector());
     PM.AddPlugin(new FloodPL());
     var SS = PM.AddService(new SiteServices());
