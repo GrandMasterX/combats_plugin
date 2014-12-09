@@ -181,14 +181,30 @@ function checkPoint(Point, kyda, xmax) {
 }
 function whoPoint(scr) {	
 			if(scr == 'http://i.oldbk.com/llabb/m.gif' || scr == 'http://i.oldbk.com/llabb/m2.gif' || scr == 'http://i.oldbk.com/llabb/n.gif' || scr == 'http://i.oldbk.com/llabb/a2.gif' || scr == 'http://i.oldbk.com/llabb/e2.gif')return 'stena';
-			if(scr == 'http://i.oldbk.com/llabb/r.gif' || scr == 'http://i.oldbk.com/llabb/r2.gif' || scr == 'http://i.oldbk.com/llabb/j2.gif')return 'monstr';
-			if(scr == 'http://i.oldbk.com/llabb/b.gif' || scr == 'http://i.oldbk.com/llabb/b2.gif' )return 'lovushka';
-			if(scr == 'http://i.oldbk.com/llabb/o.gif' || scr == 'http://i.oldbk.com/llabb/o2.gif' || scr== 'http://i.oldbk.com/llabb/g.gif')return 'doroga';
-			if(scr == 'http://i.oldbk.com/llabb/c.gif' || scr == 'http://i.oldbk.com/llabb/d.gif' || scr == 'http://i.oldbk.com/llabb/x.gif'|| scr == 'http://i.oldbk.com/llabb/z.gif' )return 'dver'; 
-			if(scr == 'http://i.oldbk.com/llabb/y2.gif' || scr == 'http://i.oldbk.com/llabb/l2.gif' || scr == 'http://i.oldbk.com/llabb/k2.gif' || scr == 'http://i.oldbk.com/llabb/w2.gif')return 'larec'; 
-			if(scr == 'http://i.oldbk.com/llabb/s.gif' || scr == 'http://i.oldbk.com/llabb/s2.gif')return 'sunduk'; 
-			if(scr == 'http://i.oldbk.com/llabb/h.gif' || scr == 'http://i.oldbk.com/llabb/h2.gif')return 'heal'; 
-			if(scr == 'http://i.oldbk.com/llabb/p.gif' || scr == 'http://i.oldbk.com/llabb/p2.gif')return 'pandora';
+			if(scr == 'http://i.oldbk.com/llabb/r.gif' || scr == 'http://i.oldbk.com/llabb/r2.gif' || scr == 'http://i.oldbk.com/llabb/j2.gif'){
+				return 'monstr';
+			}
+			if(scr == 'http://i.oldbk.com/llabb/b.gif' || scr == 'http://i.oldbk.com/llabb/b2.gif' ) {
+				return 'lovushka';
+			}
+			if(scr == 'http://i.oldbk.com/llabb/o.gif' || scr == 'http://i.oldbk.com/llabb/o2.gif' || scr== 'http://i.oldbk.com/llabb/g.gif') {
+				return 'doroga';
+			}
+			if(scr == 'http://i.oldbk.com/llabb/c.gif' || scr == 'http://i.oldbk.com/llabb/d.gif' || scr == 'http://i.oldbk.com/llabb/x.gif'|| scr == 'http://i.oldbk.com/llabb/z.gif' ) {
+				return 'dver';
+			}
+			if(scr == 'http://i.oldbk.com/llabb/y2.gif' || scr == 'http://i.oldbk.com/llabb/l2.gif' || scr == 'http://i.oldbk.com/llabb/k2.gif' || scr == 'http://i.oldbk.com/llabb/w2.gif') {
+				return 'larec';
+			} 
+			if(scr == 'http://i.oldbk.com/llabb/s.gif' || scr == 'http://i.oldbk.com/llabb/s2.gif') {
+				return 'sunduk';
+			}
+			if(scr == 'http://i.oldbk.com/llabb/h.gif' || scr == 'http://i.oldbk.com/llabb/h2.gif'){
+				return 'heal'; 
+			}
+			if(scr == 'http://i.oldbk.com/llabb/p.gif' || scr == 'http://i.oldbk.com/llabb/p2.gif') {
+				return 'pandora';
+			}
 		return '';
 }  
 function LabaKeyPressed(e) {
@@ -349,10 +365,11 @@ var AutoPilot=function()
     this.timer=null;
     this.Newimg=function()
     {
-        if(!PluginPilot.started)
-        {return 'http://old-mercenaries.ru/plugins/laba/point_start.gif';}
-        else
-        {return 'http://old-mercenaries.ru/plugins/laba/point_stop.gif';}
+        if(!PluginPilot.started) {
+			return 'http://old-mercenaries.ru/plugins/laba/point_start.gif';
+		} else {
+			return 'http://old-mercenaries.ru/plugins/laba/point_stop.gif';
+		}
         
     }
     this.NextStep=function(begin)
@@ -371,8 +388,7 @@ var AutoPilot=function()
 				PluginFrame.$.jStorage.set('Dealer', PluginFrame.$.toJSON(PluginPilot.Dealer), {TTL: expire});
 			}
 		}
-        if(PluginPilot.started)
-        {
+        if(PluginPilot.started) {
             var timeout=3400;
             if(document.body.innerHTML.indexOf('Время перехода +3 секунды')!=-1)
                 timeout=6400;
@@ -392,18 +408,19 @@ var AutoPilot=function()
         }
         
     }
-    this.Stop=function()
-    {
-        if(PluginPilot.Marshrut.length>1)
-        {
+	
+    this.Stop=function() {
+        if(PluginPilot.Marshrut.length>1) {
             var Target=PluginPilot.Marshrut[PluginPilot.Marshrut.length-1];
-            document.getElementById(Target.x+'_'+Target.y).src=this.Newimg();
+				document.getElementById(Target.x+'_'+Target.y).src=this.Newimg();
         }
         clearTimeout(this.timer);
         this.timer==null;
     }
+	
     this.Go = function(direction) {
 		var This = this;
+
     	if (PluginPilot.Marshrut.length > 1) {
 			var nearest = PluginPilot.Marshrut[1];		
     		var direction = "";
@@ -418,86 +435,127 @@ var AutoPilot=function()
 				else
 					direction = "p4";
 			}
-			var HP = 1000000;
-			var rhp = /Уровень жизни[\s\S]*?(\d+)\/(\d+)/mi;
-			var res = PluginFrame.$('body',document).html().match(rhp);
-			var healing = 0;
-			if (res && res.length > 0) {       
-				if (PluginPilot.options.buterhill > 0) {
-					if (res[1] < PluginPilot.options.buterhill) {
-						if (whoPoint(PluginPilot.Marshrut[1].img) == 'monstr' || whoPoint(PluginPilot.Marshrut[1].img) == 'dver' || 
-							whoPoint(PluginPilot.Marshrut[1].img) == ''){
+			var HP = 1000000,
+				rhp = /Уровень жизни[\s\S]*?(\d+)\/(\d+)/mi,
+				crushedStats = /Ослаблены характеристики /;
+				//(?:Осталось:|Длительность:\+)([\d\.]+)мин/mi;
+				
+			var res = PluginFrame.$('body',document).html().match(rhp),
+				isCrushed = PluginFrame.$('body',document).html().match(crushedStats),
+				healing = 0,
+				fullHp = res[2],
+				currentHp = res[1],
+				stopHp = PluginPilot.options.noattackhp,
+				countHp = (currentHp * stopHp)/100,
+				neededHp = (fullHp * stopHp)/100;
+
+			if(isCrushed) {
+				//PluginPilot.Stop();
+			}
+			if (res && res.length > 0) {
+
+				if(PluginPilot.options.labahill<currentHp && whoPoint(PluginPilot.Marshrut[1].img) == 'heal') {
+					console.log('need heal')
+				}
+
+				if(whoPoint(PluginPilot.Marshrut[1].img) == 'monstr' && neededHp>currentHp) {
+						
+					if(PluginPilot.options.buterhill>0) {
+						if(currentHp <= PluginPilot.options.buterhill) {
 							PluginPilot.Heal("buter", true);
 							healing = 3;
 						}
 					}
-				}
-				if (PluginPilot.options.noattackhp == undefined) { 
-					PluginFrame.$("#auto_pilot_noattackhp").keyup();
-				}
-				var noattackhp = PluginPilot.options.noattackhp;
-				if (document.URL.indexOf("/lab2.php") != -1)
-		    		noattackhp = 0;
-				if	(PluginPilot.options.real_start	== 1) {       
-					if	((((document.URL.indexOf("/lab.php") != -1) || (document.URL.indexOf("/lab3.php") != -1)) && 
-						((res[1] / res[2]) >= (noattackhp / 100) &&
-						(PluginPilot.Marshrut[1].img == 'http://i.oldbk.com/llabb/r.gif' || PluginPilot.Marshrut[1].img == '') || 
-						(PluginPilot.Marshrut[1].img != 'http://i.oldbk.com/llabb/r.gif' && PluginPilot.Marshrut[1].img != ''))) ||
-						(document.URL.indexOf("/lab2.php") != -1 && (whoPoint(PluginPilot.Marshrut[1].img) != 'stena' ))){
-						if (document.URL.indexOf("/lab.php") != -1) {
-							this.timer = setTimeout(function(){location.href = 'lab.php?goto=' + direction;}, healing * 1000 + 1);
-        				} else if (document.URL.indexOf("/lab2.php") != -1) {
-							this.timer = setTimeout(function(){location.href = 'lab2.php?goto=' + direction;}, healing * 1000 + 1);
-						} else if (document.URL.indexOf("/lab3.php") != -1) {
-							this.timer = setTimeout(function(){location.href = 'lab3.php?goto=' + direction;}, healing * 1000 + 1);
-						} else if (this.timer != null) {
-    	        			this.timer = setTimeout(function(){This.Go(direction);}, 1000);
-        				}
+					
+					if(neededHp>currentHp) {
+						PluginPilot.Stop();
 					}
+					
 				} else {
-					if (document.URL.indexOf("/lab.php") != -1) {
-            			location.href = 'lab.php?goto=' + direction;
-        			} else if (document.URL.indexOf("/lab2.php") != -1) {
-						location.href = 'lab2.php?goto=' + direction;
-					} else if (document.URL.indexOf("/lab3.php") != -1) {
-						location.href = 'lab3.php?goto=' + direction;
-					} else if (this.timer != null) {
-            			this.timer = setTimeout(function(){This.Go(direction);}, 100);
-        			}
+					if (PluginPilot.options.buterhill > 0) {
+						if (res[1] < PluginPilot.options.buterhill) {
+							if (whoPoint(PluginPilot.Marshrut[1].img) == 'monstr' || whoPoint(PluginPilot.Marshrut[1].img) == 'dver' || 
+								whoPoint(PluginPilot.Marshrut[1].img) == ''){
+								console.log('buter')
+								PluginPilot.Heal("buter", true);
+								healing = 3;
+							}
+						}
+					}
+					if (PluginPilot.options.noattackhp == undefined) { 
+						PluginFrame.$("#auto_pilot_noattackhp").keyup();
+					}
+					var noattackhp = PluginPilot.options.noattackhp;
+					if (document.URL.indexOf("/lab2.php") != -1)
+						noattackhp = 0;
+					if	(PluginPilot.options.real_start	== 1) {
+						if	((((document.URL.indexOf("/lab.php") != -1) || (document.URL.indexOf("/lab3.php") != -1)) && 
+							((res[1] / res[2]) >= (noattackhp / 100) &&
+							(PluginPilot.Marshrut[1].img == 'http://i.oldbk.com/llabb/r.gif' || PluginPilot.Marshrut[1].img == '') || 
+							(PluginPilot.Marshrut[1].img != 'http://i.oldbk.com/llabb/r.gif' && PluginPilot.Marshrut[1].img != ''))) ||
+							(document.URL.indexOf("/lab2.php") != -1 && (whoPoint(PluginPilot.Marshrut[1].img) != 'stena' ))){
+							if (document.URL.indexOf("/lab.php") != -1) {
+								console.log('setTimeout(function');
+								this.timer = setTimeout(function(){location.href = 'lab.php?goto=' + direction;}, healing * 1000 + 1);
+							} else if (document.URL.indexOf("/lab2.php") != -1) {
+								console.log('setTimeout(function');
+								this.timer = setTimeout(function(){location.href = 'lab2.php?goto=' + direction;}, healing * 1000 + 1);
+							} else if (document.URL.indexOf("/lab3.php") != -1) {
+								console.log('setTimeout(function');
+								this.timer = setTimeout(function(){location.href = 'lab3.php?goto=' + direction;}, healing * 1000 + 1);
+							} else if (this.timer != null) {
+								console.log('setTimeout(function');	
+								this.timer = setTimeout(function(){This.Go(direction);}, 1000);
+							}
+						}
+					} else {
+						if (document.URL.indexOf("/lab.php") != -1) {
+							console.log('direction');
+							location.href = 'lab.php?goto=' + direction;
+						} else if (document.URL.indexOf("/lab2.php") != -1) {
+							console.log('direction');
+							location.href = 'lab2.php?goto=' + direction;
+						} else if (document.URL.indexOf("/lab3.php") != -1) {
+							console.log('direction');
+							location.href = 'lab3.php?goto=' + direction;
+						} else if (this.timer != null) {
+							console.log('direction');
+							this.timer = setTimeout(function(){This.Go(direction);}, 100);
+						}
+					}
 				}
 			}
 		}
     }
-    this.SetGoTo=function(e)
-    {   
-        var This=Pilot;
-        var img=null;
-        if(window.event){
+    this.SetGoTo=function(e) {
+        var This=Pilot,
+			img=null;
+			
+        if(window.event) {
             img = event.srcElement;
-        }
-        else{
+        } else{
             if(e)img = e.target;
         }
-	var X_max=25;
-	var Y_max=25;
-	if(document.URL.indexOf("/lab2.php")!=-1)
-	{
-		X_max=49;
-		Y_max=49;
-	}
-	var karta=new Array (X_max+1);
-	for (i=0; i<=X_max; i++)
-			{
-				karta[i]=new Array (X_max+1);	
-				for (k=0; k<=X_max; k++)
-				{
-					karta[i][k]=1;
-				}
+		
+		var X_max=25,
+			Y_max=25;
+			
+		if(document.URL.indexOf("/lab2.php")!=-1) {
+			X_max=49;
+			Y_max=49;
+		}
+		
+		var karta=new Array (X_max+1);
+		
+		for (i=0; i<=X_max; i++) {
+			karta[i]=new Array (X_max+1);	
+			for (k=0; k<=X_max; k++) {
+				karta[i][k]=1;
 			}
-	for(var i in PluginPilot.Map)
-	{
-		if(PluginPilot.Map[i].img != 'http://i.oldbk.com/llabb/m.gif' && PluginPilot.Map[i].img != 'http://i.oldbk.com/llabb/m2.gif' && PluginPilot.Map[i].img != 'http://i.oldbk.com/llabb/n.gif' && PluginPilot.Map[i].img != 'http://i.oldbk.com/llabb/a2.gif' && PluginPilot.Map[i].img != 'http://i.oldbk.com/llabb/e2.gif' && PluginPilot.Map[i].img != "http://i.oldbk.com/llabb/c.gif" && PluginPilot.Map[i].img != "http://i.oldbk.com/llabb/d.gif" && PluginPilot.Map[i].img != "http://i.oldbk.com/llabb/x.gif" && PluginPilot.Map[i].img != "http://i.oldbk.com/llabb/z.gif")karta[PluginPilot.Map[i].x][PluginPilot.Map[i].y]=0;
-	} 
+		}
+		for(var i in PluginPilot.Map) {
+			if(PluginPilot.Map[i].img != 'http://i.oldbk.com/llabb/m.gif' && PluginPilot.Map[i].img != 'http://i.oldbk.com/llabb/m2.gif' && PluginPilot.Map[i].img != 'http://i.oldbk.com/llabb/n.gif' && PluginPilot.Map[i].img != 'http://i.oldbk.com/llabb/a2.gif' && PluginPilot.Map[i].img != 'http://i.oldbk.com/llabb/e2.gif' && PluginPilot.Map[i].img != "http://i.oldbk.com/llabb/c.gif" && PluginPilot.Map[i].img != "http://i.oldbk.com/llabb/d.gif" && PluginPilot.Map[i].img != "http://i.oldbk.com/llabb/x.gif" && PluginPilot.Map[i].img != "http://i.oldbk.com/llabb/z.gif")karta[PluginPilot.Map[i].x][PluginPilot.Map[i].y]=0;
+		} 
         if(e)var Target=new LabaPoint(img.type1,img.src,img.x1,img.y1);
         var PrevTarget=PluginPilot.Marshrut[PluginPilot.Marshrut.length-1];
 		if(e)if ((Target.img.indexOf('c.gif') != -1) || (Target.img.indexOf('d.gif') != -1) || (Target.img.indexOf('x.gif') != -1) || (Target.img.indexOf('z.gif') != -1)) {
@@ -996,45 +1054,42 @@ if(PluginPilot.options.real_start==1 || PluginPilot.options.to_exit==1)
 		    check1[3]=check1[2]=[[[1,0]],[[1,1],[1,2]],[[1,-1],[1,-2]]];
 
 		    var this_x, this_y, type, this1_x, this1_y, foundMonstr='';
-		    for (var i=0; i<check.length; i++)
-		    {
-			this_x=This.Me.x+check[i][0];
-			this_y=This.Me.y+check[i][1];
-			type=whoPoint(This.LabaMap.Points[This.LabaMap.PointsXY[this_x+','+this_y]].img);
-			if(type=='dver') 
-			{
-			    Loop1:
-			    for (var j=0; j<check1[i].length; j++)
-				for (var k=0; k<check1[i][j].length; k++)
-				{
-				    this1_x=this_x+check1[i][j][k][0]*(check[i][0]!=0 ? check[i][0] : 1);
-				    this1_y=this_y+check1[i][j][k][1]*(check[i][1]!=0 ? check[i][1] : 1);
-				    type=whoPoint(This.LabaMap.Points[This.LabaMap.PointsXY[this1_x+','+this1_y]].img);
-				    if (type=='stena')
-					break;
-				    else if (type=='monstr')
-				    {
-					foundMonstr=This.LabaMap.Points[This.LabaMap.PointsXY[this1_x+','+this1_y]].title;
-					break Loop1;
-				    }
+		    for (var i=0; i<check.length; i++) {
+				this_x=This.Me.x+check[i][0];
+				this_y=This.Me.y+check[i][1];
+				type=whoPoint(This.LabaMap.Points[This.LabaMap.PointsXY[this_x+','+this_y]].img);
+				if(type=='dver')  {
+					Loop1:
+					for (var j=0; j<check1[i].length; j++)
+						for (var k=0; k<check1[i][j].length; k++) {
+							this1_x=this_x+check1[i][j][k][0]*(check[i][0]!=0 ? check[i][0] : 1);
+							this1_y=this_y+check1[i][j][k][1]*(check[i][1]!=0 ? check[i][1] : 1);
+							type=whoPoint(This.LabaMap.Points[This.LabaMap.PointsXY[this1_x+','+this1_y]].img);
+							if (type=='stena')
+							break;
+							else if (type=='monstr') {
+								console.log('monstr')
+								foundMonstr=This.LabaMap.Points[This.LabaMap.PointsXY[this1_x+','+this1_y]].title;
+								break Loop1;
+							}
+						}
 				}
-			}
 		    }
 		    {
-			switch(foundMonstr)
-			{
-			case 'Опасная зона':
-			  foundMonstr = '1';
-			  break;
-			case '':
-			  foundMonstr = '0';
-			  break;
-			}
-			var res = PluginPilot.options.open_door_filter_txt.match(RegExp('(?:^|,)(?:'+foundMonstr+')(?:,|$)', "i"));
-			if(res&&res.length>0)
-			{
-			     found=false;
-			}
+				switch(foundMonstr) {
+				case 'Опасная зона':
+				  foundMonstr = '1';
+				  break;
+				case '':
+				  foundMonstr = '0';
+				  break;
+				}
+				
+				var res = PluginPilot.options.open_door_filter_txt.match(RegExp('(?:^|,)(?:'+foundMonstr+')(?:,|$)', "i"));
+				
+				if(res&&res.length>0) {
+					 found=false;
+				}
 		    }
 		}
 		if (found)
@@ -1048,86 +1103,76 @@ if(PluginPilot.options.real_start==1 || PluginPilot.options.to_exit==1)
         var HP=1000000;
         var rhp = /Уровень жизни[\s\S]*?(\d+)\/(\d+)/mi;
         var res = PluginFrame.$('body',document).html().match(rhp);
-        if(res&&res.length>0)
-        {
+        if(res&&res.length>0) {
              HP=res[1];if(HP==res[2])return;
-        }
-        else
-        { alert('Ошибка определения уровня хп');return;}
+        } else { 
+			alert('Ошибка определения уровня хп');
+			return;
+		}
 		HP=parseInt(HP,10);
-        if(HP<PluginPilot.options.labahill)
-        {
+        if(HP<PluginPilot.options.labahill) {
             PluginFrame.$('table table td a',document.body).each(function(){
-                if(this.href.indexOf('hill=1')!=-1)
-                {
+                if(this.href.indexOf('hill=1')!=-1) {
                     window.location.href=this.href;
                     return;
                 }            
             });
         }
     }
-    this.AutoAntidot=function()
-    {
-	var rtime = /Время перехода \+3 секунды.*?(?:Осталось:|Длительность:\+)([\d\.]+)мин/mi;
+	
+    this.AutoAntidot=function() {
+	
+		var rtime = /Время перехода \+3 секунды.*?(?:Осталось:|Длительность:\+)([\d\.]+)мин/mi;
         var res = PluginFrame.$('body',document).html().match(rtime);
-        if(res&&res.length>0)
-        {
+        if(res&&res.length>0) {
             rtime=parseInt(res[1],10);
-	    if (rtime>=PluginPilot.options.autoantidot)
-	    {
-		PluginPilot.Heal('dot',false);
-	    }
+			if (rtime>=PluginPilot.options.autoantidot) {
+			PluginPilot.Heal('dot',false);
+			}
         }
     }
-    this.Init=function()
-    {
-	var rmapid = /Карта:([\d]+)/mi;
-        var res = PluginFrame.$('body',document).html().match(rmapid);
-        if(res&&res.length>0)
-        {
-            var mapId=parseInt(res[1],10);
+	
+    this.Init=function() {
+	
+		var rmapid = /Карта:([\d]+)/mi;
+			var res = PluginFrame.$('body',document).html().match(rmapid);
+			if(res&&res.length>0) {
+				var mapId=parseInt(res[1],10);
+			} else { 
+				alert('Ошибка определения номера карты');
+				return;
+			}
+		if (PluginFrame.$.jStorage.storageAvailable()) {
+			if (mapId == PluginFrame.$.jStorage.get("MapID")) {
+				var value = PluginFrame.$.jStorage.get("AutoMap");
+				var value2 = PluginFrame.$.jStorage.get("Map");
+				var value3 = PluginFrame.$.jStorage.get("BeHere");
+				var value4 = PluginFrame.$.jStorage.get("Dealer");
+				var value5 = PluginFrame.$.jStorage.get("MapRoad");
+				if (value)
+				{
+					PluginPilot.AutoMap = PluginFrame.$.evalJSON(value);
+				}
+				if (value2) {
+					PluginPilot.Map = PluginFrame.$.evalJSON(value2);
+				}
+				if (value3) {
+					PluginPilot.BeHere = PluginFrame.$.evalJSON(value3);
+				}
+				if (value4) {
+					PluginPilot.Dealer = PluginFrame.$.evalJSON(value4);
+				}
+				if (value5)	{
+					PluginPilot.map_uz = PluginFrame.$.evalJSON(value5);
+				}
+			} else {
+				PluginPilot.Marshrut=[];
+				PluginPilot.Map=[];
+				PluginPilot.AutoMap=[];
+				PluginPilot.BeHere=[];
+				PluginPilot.map_uz=[];
+			}
 		}
-        else
-        { alert('Ошибка определения номера карты');return;}
-	if (PluginFrame.$.jStorage.storageAvailable())
-	{
-	    if (mapId == PluginFrame.$.jStorage.get("MapID"))
-	    {
-		    var value = PluginFrame.$.jStorage.get("AutoMap");
-		    var value2 = PluginFrame.$.jStorage.get("Map");
-		    var value3 = PluginFrame.$.jStorage.get("BeHere");
-			var value4 = PluginFrame.$.jStorage.get("Dealer");
-			var value5 = PluginFrame.$.jStorage.get("MapRoad");
-		    if (value)
-		    {
-			PluginPilot.AutoMap = PluginFrame.$.evalJSON(value);
-		    }
-		    if (value2)
-		    {
-			PluginPilot.Map = PluginFrame.$.evalJSON(value2);
-		    }
-		    if (value3)
-		    {
-			PluginPilot.BeHere = PluginFrame.$.evalJSON(value3);
-		    }
-			if (value4)
-			{
-			PluginPilot.Dealer = PluginFrame.$.evalJSON(value4);
-			}
-			if (value5)
-			{
-			PluginPilot.map_uz = PluginFrame.$.evalJSON(value5);
-			}
-	    }
-	    else
-	    {
-	    	PluginPilot.Marshrut=[];
-		PluginPilot.Map=[];
-		PluginPilot.AutoMap=[];
-		PluginPilot.BeHere=[];
-		PluginPilot.map_uz=[];
-	    }
-	}
 	var This=this;
 if(document.body.innerHTML.indexOf('<center>nginx</center>')!=-1 || document.body.innerHTML.indexOf('Веб-страница недоступна')!=-1 )timeout_handle=setTimeout(function(){window.location.href=document.URL},5000);
 	var X_max=25;
