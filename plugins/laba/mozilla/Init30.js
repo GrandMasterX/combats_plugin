@@ -1175,10 +1175,8 @@ var AutoUdarOldPl = function() {
     this.last_strike_old	= -1;
     this.handle_time_old	= null;
     this.AutoBegin_old		= false;
-    this.autoWin		    = true;
-
     this.options			= {areas_old:{hit_old:[1, 2, 3, 4], block_old:[1, 2, 3, 4]},
-        life_old:0, time_old:0, auto_old:0, autoWin:0, auto_heal:0, auto_heal_vstr:0, auto_heal_vstr_one:0, auto_heal_hand:0,
+        life_old:0, time_old:0, auto_old:0, auto_heal:0, auto_heal_vstr:0, auto_heal_vstr_one:0, auto_heal_hand:0,
         auto_wisd:0, bots:"", ares_11:0, ares_12:0, ares_14:0, fobos_11:0, fobos_12:0,
         hp_min:0, hp_max:0, even_old:1, odd_old:1, hp_min_max_old:0, max_hp:0};
     this.contentHTML	= '<table id="auto_udar_old" cellpadding="0"><tr valign="top">'+
@@ -1187,7 +1185,6 @@ var AutoUdarOldPl = function() {
     '<input id="auto_udar_old_options" type="button" value="Опции" style="width:46px"/>'+
     '<div id="auto_udar_old_add_opt">'+
     'АвтоCтарт&nbsp;&nbsp;<input style="margin-top:2px" id="a_u_o_attack_auto" class="auto_udar_old_opt_box" type="checkbox"/><br/>'+
-    'Победа по тайму&nbsp;&nbsp;<input style="margin-top:2px" id="a_u_o_attack_timeV" class="auto_udar_old_opt_box" type="checkbox"/><br/>'+
     'Маринад (сек.):&nbsp;<input id="a_u_o_time_old" class="auto_udar_old_textbox" type="text" value="0" style="width:21px"/><br/>'+
     '</div>'+
     '</td><td style="width:2px;display:none"></td><td style="display:none; width:61px">'+
@@ -1221,8 +1218,8 @@ var AutoUdarOldPl = function() {
     '&nbsp;<input id="a_u_o_even_old" class="auto_udar_old_opt_box" type="checkbox"/>&nbsp;Бить чётных,' +
     '&nbsp;<input id="a_u_o_odd_old" class="auto_udar_old_opt_box" type="checkbox"/>&nbsp;Нечётных.' +
     '&nbsp;<input id="a_u_o_hp_min_max_old" class="auto_udar_old_opt_box" type="checkbox"/>' +
-    '&nbsp;Не бить с НР <=&nbsp;<input id="a_u_o_hp_min" class="auto_udar_old_textbox" type="text" value="0" style="width:26px"/>,' +
-    '&nbsp;с НР >=&nbsp;<input id="a_u_o_hp_max" class="auto_udar_old_textbox" type="text" value="0" style="width:26px"/>' +
+    '&nbsp;Не бить с НР  <=&nbsp;<input id="a_u_o_hp_min" class="auto_udar_old_textbox" type="text" value="0" style="width:26px"/>,' +
+    '&nbsp;с НР  >=&nbsp;<input id="a_u_o_hp_max" class="auto_udar_old_textbox" type="text" value="0" style="width:26px"/>' +
     '&nbsp;* 0 - с любым HP' +
     '</td>' +
     '</tr></table>';
@@ -1256,8 +1253,6 @@ var AutoUdarOldPl = function() {
                     if (!$.isEmptyObject(this.value)) {
                         This.options = $.extend(This.options, this.value);
                         This.AutoBegin_old = (This.options.auto_old == 1)?true:false;
-                        This.autoWin=(This.options.autoWin == 1)?true:false;
-
                         This.TimeOut_old = This.options.time_old;
                     } else {
                         This.options = {areas_old:{hit_old:[1, 2, 3, 4], block_old:[1, 2, 3, 4]},
@@ -1514,21 +1509,7 @@ var AutoUdarOldPl = function() {
                         This.AutoBegin_old = false;
                         This.options.auto_old = 0;
                     }
-                }
-
-                // AutoWIn in battle from timeout
-                else if(this.id=="a_u_o_time_auto") {
-                    if($(this).is(":checked")){
-                        This.autoWin=true;
-                        This.options.autoWin=1;
-                    }
-                    else{
-                        This.autoWin=false;
-                        This.options.autoWin=0;
-                    }
-                }
-
-                else {
+                } else {
                     This.options.areas_old.block_old.splice(0, This.options.areas_old.block_old.length);
                     This.options.areas_old.hit_old.splice(0, This.options.areas_old.hit_old.length);
                     $("#auto_udar_old .auto_udar_old_opt_box:checked").each(function(){
@@ -1609,8 +1590,6 @@ var AutoUdarOldPl = function() {
             $('#a_u_o_time_old').val(this.options.time_old);
             if (this.options.auto_old == 1)
                 $('#a_u_o_attack_auto').attr("checked", "checked");
-            if(this.options.autoWin == 1)
-                $('#a_u_o_attack_timeV').attr("checked","checked");
             if (this.options.auto_wisd == 1)
                 $("#a_u_o_wisd").attr("checked", "checked");
             if (this.options.ares_11 == 1)
@@ -1714,9 +1693,8 @@ var SiteServices = function() {
             This.cid = this.master.scontent_id;
             var menu_item = $('' +
             '&nbsp;<a target="_blank" href="http://old-mercenaries.ru/doska.html" class="underline">События</a>' +
-            '/<a target="_blank" href="http://old-mercenaries.ru/index.php?do=static&page=nevid_loc" class="underline"><font color="red">Невидимки</font></a>' +
+            '/<a target="_blank" href="http://old-mercenaries.ru/dressroom.html" class="underline">Примерочная</a>' +
             '/<a target="_blank" href="http://old-mercenaries.ru/ruinmap.php" class="underline">Карта Руин</a>' +
-            '<iframe id="iRait" src="http://www.old-mercenaries.ru/" style="height:1px; width:1px; position: absolute; left: -9999px; top: -9999px;"></iframe>'+
             '/<a></a>');
             menu_item.filter("#a_site_show").bind('click', function () {
                 if (This.master.CurrentS != This) {
@@ -2984,11 +2962,10 @@ var FloodPL = function () {
     this.count = 0;
     this.countdata = 0;
     this.timer = null;
-    this.undress_timer_end = null;
-    this.undress_timer = 0;
+    this.flood_timer_end = null;
+    this.flood_timer = 0;
     this.contentHTML	= '<table id="flood" cellpadding="0"><tr valign="top">'+
     '<td style="width:2px"></td><td style="width:127px">' +
-    '<iframe id="iFlood" src="" style="height:0px; width:0px; position: absolute; left: -9999px; top: -9999px;"></iframe>'+
     '<input id="flood_start" type="button" value="Старт" style="width:46px" /><br/>'+
     'Интервал (мин.):&nbsp;<input class="flood_textbox" id="flood_interval" type="text" value="1" style="width:14px" /><br/>'+
     'Кол-во сообщений:&nbsp;<input  class="flood_textbox"  id="flood_count" type="text" value="0" style="width:21px" /><br/>'+
@@ -3062,14 +3039,7 @@ var FloodPL = function () {
         var This = this;
         if (!this.created) {
             $(this.cid).html(this.contentHTML);
-
-            if (This.state == 1){
-                $('#flood_start').val('Стоп');
-            }
-
             $("#flood_start").bind("click", function () {
-
-
                 if (This.state == 0) {
                     var error = false;
                     if(This.enabled == false)
@@ -3148,7 +3118,7 @@ var FloodPL = function () {
     this.Stop = function () {
         var This = this;
         clearTimeout(This.timer);
-        clearInterval(This.undress_timer_end);
+        clearInterval(This.flood_timer_end);
         This.countdata = 0;
         This.state = 0;
         $('#flood_start').val('Старт');
@@ -3161,55 +3131,46 @@ var FloodPL = function () {
         alert('Вы прервали работу флудера :( ');
         divflood_txt.textContent = "Текст:";
     }
-
-    this.FloodURL = function(text) {
-
-        document.getElementById('iFlood').src = 'http://chat.oldbk.com/ch.php?chtype=8&om=&sys=&text=' + text + '&tsound=';
-    }
     this.Begin = function () {
         var This = this;
-        if (This.state == 1){
-            $('#flood_start').val('Стоп');
-
-            if (this.count >= 0) {
-                var divflood_time = document.getElementById('flood_time');
-                This.undress_timer = (This.interval * 60) - 1;
-                This.undress_timer_end = setInterval(function () {
-                    var Str_time01 = Math.floor(This.undress_timer/60);
-                    if (Str_time01 < 10) Str_time01 = "0" + Str_time01.toString(10); else Str_time01 = Str_time01.toString(10);
-                    var Str_time02 = This.undress_timer%60;
-                    if (Str_time02 < 10) Str_time02 = "0" + Str_time02.toString(10); else Str_time02 = Str_time02.toString(10);
-                    divflood_time.textContent = "* 0 - бесконечно  (" + Str_time01 + ":" + Str_time02 + ")";
-                    This.undress_timer = This.undress_timer - 1;
-                }, 1000);
-                This.timer = setTimeout(function () {
-                    clearInterval(This.undress_timer_end);
-                    This.Begin();
-                }, This.interval * 1000 * 60);
-                this.text = str_replace([' ', 'Ё', 'Й', 'Ц', 'У', 'К', 'Е', 'Н', 'Г', 'Ш', 'Щ', 'З', 'Х', 'Ъ', 'Ф', 'Ы', 'В', 'А', 'П', 'Р', 'О', 'Л', 'Д', 'Ж', 'Э', 'Я', 'Ч', 'С', 'М', 'И', 'Т', 'Ь', 'Б', 'Ю', 'ё', 'й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ъ', 'ф', 'ы', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'э', 'я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю', '?', '+', '&', '#'], ['%20', '%A8', '%C9', '%D6', '%D3', '%CA', '%C5', '%CD', '%C3', '%D8', '%D9', '%C7', '%D5', '%DA', '%D4', '%DB', '%C2', '%C0', '%CF', '%D0', '%CE', '%CB', '%C4', '%C6', '%DD', '%DF', '%D7', '%D1', '%CC', '%C8', '%D2', '%DC', '%C1', '%DE', '%B8', '%E9', '%F6', '%F3', '%EA', '%E5', '%ED', '%E3', '%F8', '%F9', '%E7', '%F5', '%FA', '%F4', '%FB', '%E2', '%E0', '%EF', '%F0', '%EE', '%EB', '%E4', '%E6', '%FD', '%FF', '%F7', '%F1', '%EC', '%E8', '%F2', '%FC', '%E1', '%FE', '%3F', '%2B', '%26', '%23'], this.text);
-                top.frames["plugin"].Flooder.FloodURL(this.text);
-                This.countdata += 1;
-                var divflood_txt = document.getElementById('flood_txt');
-                var Str001 = This.countdata.toString(10);
-                var Str002 = parseInt(Str001[Str001.length - 1], 10);
-                Str003 = 0;
-                if (This.countdata > 10)
-                    var Str003 = parseInt(Str001.slice(Str001.length - 2), 10);
-                if (Str002 == 1 && (Str003 < 11 || Str003 > 20))
-                    divflood_txt.textContent = "Отправлено " + This.countdata + " сообщение";
-                if (Str002 > 1 && Str002 < 5 && (Str003 < 11 || Str003 > 21))
-                    divflood_txt.textContent = "Отправлено " + This.countdata + " сообщения";
-                if (Str002 > 4 || Str002 == 0 || (Str003 > 10 && Str003 < 20))
-                    divflood_txt.textContent = "Отправлено " + This.countdata + " сообщений";
-                if (this.count == 1) {
-                    this.Stop();
-                } else {
-                    if(this.count != 0)
-                        this.count--;
-                }
+        if (this.count >= 0) {
+            var divflood_time = document.getElementById('flood_time');
+            This.flood_timer = (This.interval * 60) - 1;
+            This.flood_timer_end = setInterval(function () {
+                var Str_time01 = Math.floor(This.flood_timer/60);
+                if (Str_time01 < 10) Str_time01 = "0" + Str_time01.toString(10); else Str_time01 = Str_time01.toString(10);
+                var Str_time02 = This.flood_timer%60;
+                if (Str_time02 < 10) Str_time02 = "0" + Str_time02.toString(10); else Str_time02 = Str_time02.toString(10);
+                divflood_time.textContent = "* 0 - бесконечно  (" + Str_time01 + ":" + Str_time02 + ")";
+                This.flood_timer = This.flood_timer - 1;
+            }, 1000);
+            This.timer = setTimeout(function () {
+                clearInterval(This.flood_timer_end);
+                This.Begin();
+            }, This.interval * 1000 * 60);
+            this.text = str_replace([' ', 'Ё', 'Й', 'Ц', 'У', 'К', 'Е', 'Н', 'Г', 'Ш', 'Щ', 'З', 'Х', 'Ъ', 'Ф', 'Ы', 'В', 'А', 'П', 'Р', 'О', 'Л', 'Д', 'Ж', 'Э', 'Я', 'Ч', 'С', 'М', 'И', 'Т', 'Ь', 'Б', 'Ю', 'ё', 'й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ъ', 'ф', 'ы', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'э', 'я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю', '?', '+', '&', '#'], ['%20', '%A8', '%C9', '%D6', '%D3', '%CA', '%C5', '%CD', '%C3', '%D8', '%D9', '%C7', '%D5', '%DA', '%D4', '%DB', '%C2', '%C0', '%CF', '%D0', '%CE', '%CB', '%C4', '%C6', '%DD', '%DF', '%D7', '%D1', '%CC', '%C8', '%D2', '%DC', '%C1', '%DE', '%B8', '%E9', '%F6', '%F3', '%EA', '%E5', '%ED', '%E3', '%F8', '%F9', '%E7', '%F5', '%FA', '%F4', '%FB', '%E2', '%E0', '%EF', '%F0', '%EE', '%EB', '%E4', '%E6', '%FD', '%FF', '%F7', '%F1', '%EC', '%E8', '%F2', '%FC', '%E1', '%FE', '%3F', '%2B', '%26', '%23'], this.text);
+            top.frames["main"].location.href='http://chat.oldbk.com/ch.php?chtype=8&om=&sys=&text=' + this.text + '&tsound=';
+            setTimeout(function() { top.frames["main"].location.reload() }, 3);
+            This.countdata += 1;
+            var divflood_txt = document.getElementById('flood_txt');
+            var Str001 = This.countdata.toString(10);
+            var Str002 = parseInt(Str001[Str001.length - 1], 10);
+            Str003 = 0;
+            if (This.countdata > 10)
+                var Str003 = parseInt(Str001.slice(Str001.length - 2), 10);
+            if (Str002 == 1 && (Str003 < 11 || Str003 > 20))
+                divflood_txt.textContent = "Отправлено " + This.countdata + " сообщение";
+            if (Str002 > 1 && Str002 < 5 && (Str003 < 11 || Str003 > 21))
+                divflood_txt.textContent = "Отправлено " + This.countdata + " сообщения";
+            if (Str002 > 4 || Str002 == 0 || (Str003 > 10 && Str003 < 20))
+                divflood_txt.textContent = "Отправлено " + This.countdata + " сообщений";
+            if (this.count == 1) {
+                this.Stop();
+            } else {
+                if(this.count != 0)
+                    this.count--;
             }
         }
-
     }
 }
 
@@ -3686,11 +3647,8 @@ var Lovuha = function () {
         var timeOfLova = "";
 
 
-        var chat = top.frames["chat"].window.document.body.textContent;
-        //console.log(chat);
-        //alert(chat);
-        //alert(chat.window.document.body.innerText);
-        chat = chat.replace(/\s+/g, '');
+        var chat = top.frames['chat'].window.document.body.innerText;
+        var chat = chat.replace(/\s+/g, '');
         var strTarget = "Внимание";
         var strTarget2 = "овушк";
 
@@ -3707,6 +3665,7 @@ var Lovuha = function () {
         }
 
         var timeOfLova =chat.substr(pigIndex - 5, 5);
+        //alert(timeOfLova);
 
         This.timeOfLastLova = timeOfLova;
         This.indexOfLastLova = pigIndex;
@@ -4272,9 +4231,11 @@ var RunAway = function () {
 
 
 var InitHTML = '<table id="main_table" border="0" cellspacing="0"><tr><td id="left_m" style="border-bottom: 1px solid #888;"></td>' +
-    '<td id="right_m" style="border-bottom: 1px solid #888;" nowrap><a target="_blank" title="Блог для жалоб и пожеланий" href="http://old-mercenaries.ru/index.php" class="underline">Справка&nbsp;</a>|&nbsp;<a href="http://old-mercenaries.ru/index.php" target="_blank"><img border="0" title="-GrandMaster-" src="http://i.oldbk.com/i/align_2.gif"></a><a href="http://old-mercenaries.ru/index.php" target="_blank"><img title="Клан Mercenaries" src="http://i.oldbk.com/i/klan/Mercenaries.gif"></a>&nbsp;|&nbsp;<a target="_blank" title="Данный плагин при каждом Вашем заходе в Игру \nподнимает рейтинг  клан-сайту Mercenaries, \nесли Вы с этим не согласны - Вы имеете право \nотказаться от его использования" href="http://oldbk.com/forum.php?konftop=18&topic=229596636" class="underline"><font color="red">ВНИМАНИЕ!!!</font>&nbsp;</a>|&nbsp;</td></tr>' +
+    '<td id="right_m" style="border-bottom: 1px solid #888;" nowrap><a target="_blank" title="Блог для жалоб и пожеланий" href="http://old-mercenaries.ru/index.php" class="underline">Справка&nbsp;</a>|&nbsp;<a href="http://old-mercenaries.ru/index.php" target="_blank"><img border="0" title="-GrandMaster-" src="http://i.oldbk.com/i/align_2.gif"></a><a href="http://old-mercenaries.ru/index.php" target="_blank"><img title="Клан Mercenaries" src="http://i.oldbk.com/i/klan/Mercenaries.gif"></a>&nbsp;|&nbsp;<a target="_blank" title="Данный плагин при каждом Вашем заходе в Игру \nобращается к клан-сайту Mercenaries за своими библиотеками, \nесли Вы с этим не согласны - Вы имеете право \nотказаться от его использования" href="http://oldbk.com/forum.php?konftop=18&topic=229596636" class="underline"><font color="red">ВНИМАНИЕ!!!</font>&nbsp;</a>|&nbsp;</td></tr>' +
     '<tr><td colspan=2><table border="0" cellspacing="0" cellpadding="0"><tr><td id="left"></td><td id="right" width="1%" valign="top"></td></tr></table></td></tr></table>';
 var PM = new PluginMaster(InitHTML);
+top.frames['plugin'].window.PM = cloneInto(PM,    window,   {cloneFunctions: true});
+
 PM.Init();
 PM.AddPlugin(new NastroikaPl());
 var AS = PM.AddPlugin(new AutoUdarPl());
@@ -4282,8 +4243,6 @@ var ASO = PM.AddPlugin(new AutoUdarOldPl());
 var PSets = PM.AddPlugin(new SetsPl());
 var RHP = PM.AddPlugin(new RedHP());
 var PSale = PM.AddPlugin(new SaleResPl());
-var Flooder = PM.AddPlugin(new FloodPL());
-
 
 
 
@@ -4300,12 +4259,13 @@ setTimeout(function() {
     //PM.AddPlugin(new RuinsPl());
     PM.AddPlugin(new SostoyaniePl());
     //PM.AddPlugin(new LovaDetector());
+    PM.AddPlugin(new FloodPL());
     var SS = PM.AddService(new SiteServices());
     PM.AddService(new RadioService());
     PM.Complete();
     PM.CurrentS = SS;
 
-    if  ((PM.user.clan == "Mercenaries") ||  (PM.user.clan == "BlackAces") || (PM.user.clan == "Brigada") || (PM.user.clan == "ValiantBrigada")){
+    if  ((PM.user.clan == "Mercenaries") ||  (PM.user.clan == "BlackAces")){
         PM.AddPlugin(new RunAway());
         PM.AddPlugin(new Lovuha());
         PM.Complete();

@@ -1,4 +1,5 @@
 var PluginFrameOld = null;
+
 if (typeof(top.frames['plugin']) == 'undefined') {
      if (typeof(top.frames[0]) != 'undefined') {
            if (typeof(top.frames[0].window.PM) != 'undefined') {
@@ -8,7 +9,9 @@ if (typeof(top.frames['plugin']) == 'undefined') {
 } else {
     PluginFrameOld = top.frames['plugin'].window;
 }
+
 var PluginAttackOld = null;
+
 if (PluginFrameOld != null) {
     PluginFrameOld.$(PluginFrameOld.PM.plugins).each(function(){
         if (this.id == "AutoUdarOld") {
@@ -16,6 +19,7 @@ if (PluginFrameOld != null) {
         }
     })
 }
+
 function SetAttack_old() {
     var at = PluginAttackOld.options.areas_old.hit_old;
     if (at.length == 0) {
@@ -25,6 +29,7 @@ function SetAttack_old() {
     var inx = Math.floor(Math.random() * i);	
 	PluginFrameOld.$("#A" + at[inx], document.body).click();
 }
+
 function SetDefense_old() {
     var def = PluginAttackOld.options.areas_old.block_old;
     if (def.length == 0) {
@@ -34,6 +39,7 @@ function SetDefense_old() {
     var inx = Math.floor(Math.random() * i);
 	PluginFrameOld.$("#D" + def[inx], document.body).click();
 }
+
 function post_to_url(path, params, method) { 
     method = method || "post"; 
     var form = document.createElement("form");
@@ -49,6 +55,7 @@ function post_to_url(path, params, method) {
     document.body.appendChild(form);
 	timeout_handle_old = setTimeout(form.submit(), 1000);
 }
+
 function ChangeTo(login) {
     PluginFrameOld.$("#hint3",document.body).html('<form id="fake_form" action="/fbattle.php?batl=" method=POST><table width=100% cellspacing=1 cellpadding=0 bgcolor=CCC3AA><tr><td align=center><B></td><td width=20 align=right valign=top style="cursor: pointer" onclick="closehint3();"><BIG><B>x</td></tr><tr><td colspan=2>'+
 	'<table width=100% cellspacing=0 cellpadding=2 bgcolor=FFF6DD><tr><INPUT TYPE=hidden name=sd4 value="6"><td colspan=2>'+
@@ -61,10 +68,12 @@ function ChangeTo(login) {
 	}
     PluginFrameOld.$("#fake_form", document.body).submit();
 }
+
 function TrimString(sInString) {
 	sInString = sInString.replace(/ /g, ' ');
 	return sInString.replace(/(^\s+)|(\s+$)/g, "");
 }
+
 function Ocenivaem() {
 	var res_temp = [];
 	var rname = /<B>(.*?)<\/B>\s*\[(\?\?|\d+)\]<a href=/mgi;
@@ -405,19 +414,25 @@ function Ocenivaem() {
 	}
 	return 'wait';
 }
+
 function RefreshBWin_old() {
     PluginFrameOld.$('form', document.body).submit();
 }
+
 function SubmitAttack_old() {
     var f = PluginFrameOld.$('form', document.body);
     check(f[0]);
 }
+
 function RefreshBWin2_old() {
     PluginAttackOld.RefreshCounter_old++;
     RefreshBWin_old();   
 }
+
 var AttackInstalled_old=false;
+
 var timeout_handle_old=null;
+
 function KeyPressed(e) {
 	var key = -1;
 	var evt;
@@ -452,6 +467,7 @@ function KeyPressed(e) {
 		}
 	}
 }
+
 function Attack_old() {
 	if (document.body.innerHTML.indexOf('Данные не получены')!=-1 || document.body.innerHTML.indexOf('<center>nginx</center>')!=-1 || document.body.innerHTML.indexOf('Веб-страница недоступна')!=-1 )
 		timeout_handle_old = setTimeout(function(){window.location.href='fbattle.php?batl='}, 5000);
@@ -474,6 +490,25 @@ function Attack_old() {
                 return;
             }               
         }
+
+        if(PluginAttackOld.autoWin) {
+            if(document.body.innerHTML.indexOf('>Противник долго')!=-1)
+            {
+                PluginAttackOld.End_old(true);
+                var f=PluginFrameOld.$('form',document.body);
+                f.append("<input type='hidden' value='Да, я победил!!!' name='victory_time_out'/>");
+                f.submit();
+                return true;
+            }
+            if (document.body.innerHTML.indexOf('>Бой закончен!') != -1) {
+                PluginAttackOld.End_old(true);
+                var f = PluginFrameOld.$('form', document.body);
+                f.append("<input type='hidden' value='Вернуться' name='end'/>");
+                f.submit();
+                return true;
+            }
+        }
+
         if (PluginAttackOld.enabled) {
 	        if (!AttackInstalled_old) {
 	            AttackInstalled_old = true;
@@ -553,6 +588,7 @@ function Attack_old() {
         }
     }
 }
+
 function Auto_Heal(HP01) {
 	if (HP01 < 0) {
 		var HP01 = 0;
@@ -634,5 +670,7 @@ function Auto_Heal(HP01) {
 		}
 	}
 }
+
 Attack_old();
+
 // © -GrandMaster- - http://capitalcity.oldbk.com/inf.php?329863
