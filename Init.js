@@ -96,6 +96,277 @@ var Bind = function(e, d, f) {
     };
     var _escapeable = /["\\\x00-\x1f\x7f-\x9f]/g;
     var _meta = {'\b':'\\b', '\t':'\\t', '\n':'\\n', '\f':'\\f', '\r':'\\r', '"':'\\"', '\\':'\\\\'};
+    // ###################### UTILITIES ##
+
+    // Noop
+    function noop() {
+    }
+
+    // Generic callback
+    function genericCallback( data ) {
+        lastValue = [ data ];
+    }
+
+    // Call if defined
+    function callIfDefined( method , object , parameters ) {
+        return method && method.apply( object.context || object , parameters );
+    }
+
+    // Give joining character given url
+    function qMarkOrAmp( url ) {
+        return /\?/ .test( url ) ? "&" : "?";
+    }
+
+    var // String constants (for better minification)
+        STR_ASYNC = "async",
+        STR_CHARSET = "charset",
+        STR_EMPTY = "",
+        STR_ERROR = "error",
+        STR_INSERT_BEFORE = "insertBefore",
+        STR_JQUERY_JSONP = "_jqjsp",
+        STR_ON = "on",
+        STR_ON_CLICK = STR_ON + "click",
+        STR_ON_ERROR = STR_ON + STR_ERROR,
+        STR_ON_LOAD = STR_ON + "load",
+        STR_ON_READY_STATE_CHANGE = STR_ON + "readystatechange",
+        STR_READY_STATE = "readyState",
+        STR_REMOVE_CHILD = "removeChild",
+        STR_SCRIPT_TAG = "<script>",
+        STR_SUCCESS = "success",
+        STR_TIMEOUT = "timeout",
+
+    // Window
+        win = window,
+    // Deferred
+        Deferred = $.Deferred,
+    // Head element
+        head = $( "head" )[ 0 ] || document.documentElement,
+    // Page cache
+        pageCache = {},
+    // Counter
+        count = 0,
+    // Last returned value
+        lastValue,
+
+    // ###################### DEFAULT OPTIONS ##
+        xOptionsDefaults = {
+            //beforeSend: undefined,
+            //cache: false,
+            callback: STR_JQUERY_JSONP,
+            //callbackParameter: undefined,
+            //charset: undefined,
+            //complete: undefined,
+            //context: undefined,
+            //data: "",
+            //dataFilter: undefined,
+            //error: undefined,
+            //pageCache: false,
+            //success: undefined,
+            //timeout: 0,
+            //traditional: false,
+            url: location.href
+        },
+
+    // opera demands sniffing :/
+        opera = win.opera,
+
+    // IE < 10
+        oldIE = !!$( "<div>" ).html( "<!--[if IE]><i><![endif]-->" ).find("i").length;
+
+    // ###################### MAIN FUNCTION ##
+    function jsonp( xOptions ) {
+
+        // Build data with default
+        xOptions = $.extend( {} , xOptionsDefaults , xOptions );
+
+        // References to xOptions members (for better minification)
+        var successCallback = xOptions.success,
+            errorCallback = xOptions.error,
+            completeCallback = xOptions.complete,
+            dataFilter = xOptions.dataFilter,
+            callbackParameter = xOptions.callbackParameter,
+            successCallbackName = xOptions.callback,
+            cacheFlag = xOptions.cache,
+            pageCacheFlag = xOptions.pageCache,
+            charset = xOptions.charset,
+            url = xOptions.url,
+            data = xOptions.data,
+            timeout = xOptions.timeout,
+            pageCached,
+
+        // Abort/done flag
+            done = 0,
+
+        // Life-cycle functions
+            cleanUp = noop,
+
+        // Support vars
+            supportOnload,
+            supportOnreadystatechange,
+
+        // Request execution vars
+            firstChild,
+            script,
+            scriptAfter,
+            timeoutTimer;
+
+        // If we have Deferreds:
+        // - substitute callbacks
+        // - promote xOptions to a promise
+        Deferred && Deferred(function( defer ) {
+            defer.done( successCallback ).fail( errorCallback );
+            successCallback = defer.resolve;
+            errorCallback = defer.reject;
+        }).promise( xOptions );
+
+        // Create the abort method
+        xOptions.abort = function() {
+            !( done++ ) && cleanUp();
+        };
+
+        // Call beforeSend if provided (early abort if false returned)
+        if ( callIfDefined( xOptions.beforeSend , xOptions , [ xOptions ] ) === !1 || done ) {
+            return xOptions;
+        }
+
+        // Control entries
+        url = url || STR_EMPTY;
+        data = data ? ( (typeof data) == "string" ? data : $.param( data , xOptions.traditional ) ) : STR_EMPTY;
+
+        // Build final url
+        url += data ? ( qMarkOrAmp( url ) + data ) : STR_EMPTY;
+
+        // Add callback parameter if provided as option
+        callbackParameter && ( url += qMarkOrAmp( url ) + encodeURIComponent( callbackParameter ) + "=?" );
+
+        // Add anticache parameter if needed
+        !cacheFlag && !pageCacheFlag && ( url += qMarkOrAmp( url ) + "_" + ( new Date() ).getTime() + "=" );
+
+        // Replace last ? by callback parameter
+        url = url.replace( /=\?(&|$)/ , "=" + successCallbackName + "$1" );
+
+        // Success notifier
+        function notifySuccess( json ) {
+
+            if ( !( done++ ) ) {
+
+                cleanUp();
+                // Pagecache if needed
+                pageCacheFlag && ( pageCache [ url ] = { s: [ json ] } );
+                // Apply the data filter if provided
+                dataFilter && ( json = dataFilter.apply( xOptions , [ json ] ) );
+                // Call success then complete
+                callIfDefined( successCallback , xOptions , [ json , STR_SUCCESS, xOptions ] );
+                callIfDefined( completeCallback , xOptions , [ xOptions , STR_SUCCESS ] );
+
+            }
+        }
+
+        // Error notifier
+        function notifyError( type ) {
+
+            if ( !( done++ ) ) {
+
+                // Clean up
+                cleanUp();
+                // If pure error (not timeout), cache if needed
+                pageCacheFlag && type != STR_TIMEOUT && ( pageCache[ url ] = type );
+                // Call error then complete
+                callIfDefined( errorCallback , xOptions , [ xOptions , type ] );
+                callIfDefined( completeCallback , xOptions , [ xOptions , type ] );
+
+            }
+        }
+
+        // Check page cache
+        if ( pageCacheFlag && ( pageCached = pageCache[ url ] ) ) {
+
+            pageCached.s ? notifySuccess( pageCached.s[ 0 ] ) : notifyError( pageCached );
+
+        } else {
+
+            // Install the generic callback
+            // (BEWARE: global namespace pollution ahoy)
+            win[ successCallbackName ] = genericCallback;
+
+            // Create the script tag
+            script = $( STR_SCRIPT_TAG )[ 0 ];
+            script.id = STR_JQUERY_JSONP + count++;
+
+            // Set charset if provided
+            if ( charset ) {
+                script[ STR_CHARSET ] = charset;
+            }
+
+            opera && opera.version() < 11.60 ?
+                // onerror is not supported: do not set as async and assume in-order execution.
+                // Add a trailing script to emulate the event
+                ( ( scriptAfter = $( STR_SCRIPT_TAG )[ 0 ] ).text = "document.getElementById('" + script.id + "')." + STR_ON_ERROR + "()" )
+                :
+                // onerror is supported: set the script as async to avoid requests blocking each others
+                ( script[ STR_ASYNC ] = STR_ASYNC )
+
+            ;
+
+            // Internet Explorer: event/htmlFor trick
+            if ( oldIE ) {
+                script.htmlFor = script.id;
+                script.event = STR_ON_CLICK;
+            }
+
+            // Attached event handlers
+            script[ STR_ON_LOAD ] = script[ STR_ON_ERROR ] = script[ STR_ON_READY_STATE_CHANGE ] = function ( result ) {
+
+                // Test readyState if it exists
+                if ( !script[ STR_READY_STATE ] || !/i/.test( script[ STR_READY_STATE ] ) ) {
+
+                    try {
+
+                        script[ STR_ON_CLICK ] && script[ STR_ON_CLICK ]();
+
+                    } catch( _ ) {}
+
+                    result = lastValue;
+                    lastValue = 0;
+                    result ? notifySuccess( result[ 0 ] ) : notifyError( STR_ERROR );
+
+                }
+            };
+
+            // Set source
+            script.src = url;
+
+            // Re-declare cleanUp function
+            cleanUp = function( i ) {
+                timeoutTimer && clearTimeout( timeoutTimer );
+                script[ STR_ON_READY_STATE_CHANGE ] = script[ STR_ON_LOAD ] = script[ STR_ON_ERROR ] = null;
+                head[ STR_REMOVE_CHILD ]( script );
+                scriptAfter && head[ STR_REMOVE_CHILD ]( scriptAfter );
+            };
+
+            // Append main script
+            head[ STR_INSERT_BEFORE ]( script , ( firstChild = head.firstChild ) );
+
+            // Append trailing script if needed
+            scriptAfter && head[ STR_INSERT_BEFORE ]( scriptAfter , firstChild );
+
+            // If a timeout is needed, install it
+            timeoutTimer = timeout > 0 && setTimeout( function() {
+                notifyError( STR_TIMEOUT );
+            } , timeout );
+
+        }
+
+        return xOptions;
+    }
+
+    // ###################### SETUP FUNCTION ##
+    jsonp.setup = function( xOptions ) {
+        $.extend( xOptionsDefaults , xOptions );
+    };
+
+    // ###################### INSTALL in jQuery ##
+    $.jsonp = jsonp;
 })(jQuery);
 
 jQuery.cookie = function(name, value, options) {
@@ -3164,7 +3435,19 @@ var FloodPL = function () {
 
     this.FloodURL = function(text) {
 
-        document.getElementById('iFlood').src = 'http://chat.oldbk.com/ch.php?chtype=8&om=&sys=&text=' + text + '&tsound=';
+        var url = 'http://chat.oldbk.com/ch.php?chtype=8&om=&sys=&text=' + text + '&tsound=';
+        $.jsonp({
+            type: 'GET',
+            url: url,
+            dataType: 'jsonp',
+            timeout: 30000,
+            success: function(json){
+                //alert('success')
+            },
+            error: function(e,m,l){
+                //alert(e + "\r\n" + m + "\r\n" + l);
+            }
+        });
     }
     this.Begin = function () {
         var This = this;
@@ -4270,9 +4553,280 @@ var RunAway = function () {
     }
 }
 
+var IH = function() {
+    this.help="";
+    this.name="ИХ";
+    this.id="IH";
+    this.master=null;
+    this.menuitem=null;
+    this.mid = null;
+    this.cid = null;
+    this.created=false;
+    this.enabled=true;
+    this.options={};
+    this.contentHTML='<div id="options_ih" cellpadding="0">lalka</div>';
+
+    this.Start=function(win) {
+    }
+
+    this.Enable=function() {
+        this.enabled=true;
+        // var mi=this.MenuItem();
+        // if(mi!=null)
+        // {
+        // mi.removeClass("input_pl_off");
+        // }
+    }
+    this.Disable=function(){
+        this.enabled=false;
+        // var mi=this.MenuItem();
+        // if(mi!=null)
+        // {
+        // mi.addClass("input_pl_off");
+        // }
+    }
+    this.ApplyOptions=function() {
+        var This=this;
+        if(this.master!=null) {
+            $(this.master.global_options).each(function(){
+                if(this.id==This.id) {
+                    if(this.enabled)
+                        This.Enable();
+                    else
+                        This.Disable();
+                    if(!$.isEmptyObject(this.value))
+                        This.options=this.value;
+                    else
+                        This.options={};
+                }
+            })
+        }
+    }
+    this.MenuItem=function() {
+        if(this.master!=null&&this.menuitem==null){
+            var This=this;
+            This.mid=this.master.menu_id;
+            This.cid=this.master.content_id;
+            var menu_item=$('<input type="hidden" value="Исча"/>');
+            menu_item.bind('click',function(){
+                if(This.master.Current!=This){
+                    This.master.Current.Dispose();
+                }
+                $(this).css("background-color","#f0f0f0");
+                This.master.Current=This;
+                This.ToggleContent();
+
+            })
+            this.menuitem=$(menu_item);
+            return this.menuitem;
+        }
+        else
+            return this.menuitem;
+    }
+    this.ToggleContent=function() {
+        var This=this;
+        if(!this.created){
+            $(this.cid).html(this.contentHTML);
+            this.created=true;
+        }
+        else {
+            $("#options_ih").toggle();
+        }
+        this.master.ResizeFrame();
+    }
+
+    this.CheckAlerts = function(f,c) {
+
+        //alert(this.enabled);
+        var chat=top.frames["chat"].window;
+        var PluginFrame=null;
+        if(typeof(top.frames['plugin'])=='undefined'){
+            if(typeof(top.frames[0])!='undefined') {
+                if(typeof(top.frames[0].window.PM)!='undefined'){
+                    PluginFrame=top.frames[0].window;
+                }
+            }
+        }
+        else {
+            PluginFrame=top.frames['plugin'].window;
+        }
+
+        var minute = 60000, intervalName = null, regExOffline, regExOnline,locationIH;
+
+        regExOffline = /\<font color=red\>\<b\>(.+?\((\d+)\))\s-\sвырвусь на свободу через:(\d+?) ч\. (\d+?) мин\./i;
+        regExOnline = /\<SMALL\>Персонаж сейчас находится в клубе.\<BR\>\<CENTER\>\<B\>\"([^"]+)\"/i;
+
+        this.parseInterval = function(delay){
+            clearInterval(intervalName);
+            intervalName = setInterval(this.parseIH,delay);
+        };
+
+        var dateToString = function(dateObj){
+            dateObj = dateObj.toString();
+            while(dateObj.length<2){
+                dateObj = "0"+dateObj;
+            }
+            return dateObj;
+        };
+
+        this.spamToChat = function(ihLevelName,location){
+            if(this.enabled){
+                var curentDate=new Date();
+                PluginFrame.$("#mes",chat.document.body).append('<SPAN class="date2">'+dateToString(curentDate.getHours())+":"+dateToString(curentDate.getMinutes())+"</SPAN> [<a href='javascript:top.AddTo(\""+ihLevelName+'")\'><SPAN oncontextmenu="return OpenMenu(event,4)">'+ihLevelName+'</SPAN></a>] <span style="color:red;">'+location+"</span><br />");
+                chat.scrollBy(0,65000);
+                top.srld();
+
+            }
+
+        };
+
+        this.parseMyIH = function(urlIH, char_lvl){
+            setTimeout( function() {
+                f.ajax({
+                    url:urlIH,
+
+                    success:function(data) {
+                        //console.log("Вошшли во второй аякс");
+
+                        locationIH = data.match(regExOnline);// Online
+                        //console.log(locationIH);
+
+                        if (data.indexOf("AntiDDOS...refresh page") != -1 ){
+                            setTimeout(function() {
+                                SIH.parseMyIH(urlIH, char_lvl);
+                            }, 1000)
+                            return;
+                        }
+
+                        if(locationIH !== null){
+                            SIH.spamToChat("Исчадие Хаоса (" + char_lvl +")","Нахожусь в локации \""+locationIH[1] + "\"");
+                            SIH.parseInterval(10*minute);
+                            return;
+                        }
+                        else {
+                            setTimeout(function() {
+                                SIH.parseIH();
+                                return;
+                            }, 5*minute)
+                        }
+                        ;
+                    }
+                });
+            } , 1000    )
+
+
+
+
+
+        }
+
+        this.parseIH = function(){
+            var char_lvl = parseInt(PM.user.level,10);
+            f.ajax({
+                //url:"/inf.php?120395",
+                url:"/inf.php?102",
+                success:function(data) {
+                    var This = this;
+                    if (char_lvl == 13){
+                        char_lvl =12;
+                    }
+                    var logUrl = 97 + char_lvl;
+                    //var logUrl = 1 + 120395;
+                    logUrl = logUrl.toString();
+                    var urlIH = "http://capitalcity.oldbk.com/inf.php?" + logUrl;
+                    //console.log(urlIH);
+
+                    var whenIH = data.match(regExOffline);// когда будет
+                    //console.log(whenIH);
+                    //console.log(data);
+                    //console.log(data.indexOf("Исчадие Хаоса"));
+
+                    if (data.indexOf("AntiDDOS...refresh page") != -1 ){
+                        setTimeout(function() {
+                            SIH.parseIH();
+                        },1000)
+                        return;
+                    }
+
+
+                    //if(true){
+                    if(whenIH === null){
+                        setTimeout(function() {
+                            SIH.parseMyIH(urlIH, char_lvl);
+
+                        }, 1000)
+
+                    }
+                    else{
+                        var levelIH = whenIH[2];
+                        var dateIH = new Date((new Date().getTime())+parseInt(whenIH[4],10)*60000); var hoursIH = dateIH.getHours();
+                        var minutesIH = "0" + dateIH.getMinutes();
+                        var formattedTimeIH = hoursIH + ':' + minutesIH.substr(minutesIH.length-2)
+                        if(locationIH == null){
+                            document.getElementById('ih_time').textContent = "ИХ [" + levelIH +"] В " + formattedTimeIH + " (МСК)  ";
+                        }
+                        else{
+                            document.getElementById('ih_time').textContent = "ИХ - "+ locationIH[1] + "  ";
+                            locationIH = null;
+
+                        }
+
+                        //if(true){
+                        if(levelIH == char_lvl){
+                            var nameLevelIH = whenIH[1],fromMinutes = 0;
+                            if(whenIH.length > 3 && whenIH[3]){
+                                fromMinutes = parseInt(whenIH[3],10);
+                            }
+                            if(whenIH.length > 4 && whenIH[4]){
+                                fromMinutes = fromMinutes*60+parseInt(whenIH[4],10);
+                            }
+                            if(fromMinutes > 0 && fromMinutes < 59){
+                                SIH.spamToChat(nameLevelIH,"Вырвусь на свободу через: "+fromMinutes+" минут.");
+                            }
+                            var period = 10;
+                            if(fromMinutes < 5){
+                                period = 1;
+                            }else{
+                                if(fromMinutes < 20){
+                                    period = 5;
+                                }else{
+                                    if(fromMinutes < 61){
+                                        period = 10;
+                                    }
+                                }
+                            }
+                            SIH.parseInterval(period*minute);
+                            top.srld();
+                        }else{
+                            SIH.parseInterval(10*minute);
+                            top.srld();
+
+                        }
+                    }
+
+
+
+                }
+            });
+        };
+        intervalName = setInterval(this.parseIH,minute);
+    }
+    if (!this.enabled){
+        //this.CheckAlerts(jQuery);
+    }else{
+        this.CheckAlerts(jQuery);
+    }
+
+    this.Dispose=function() {
+        this.created=false;
+        this.MenuItem().css("background-color","");
+    }
+}
+
+
 
 var InitHTML = '<table id="main_table" border="0" cellspacing="0"><tr><td id="left_m" style="border-bottom: 1px solid #888;"></td>' +
-    '<td id="right_m" style="border-bottom: 1px solid #888;" nowrap><a target="_blank" title="Блог для жалоб и пожеланий" href="http://old-mercenaries.ru/index.php" class="underline">Справка&nbsp;</a>|&nbsp;<a href="http://old-mercenaries.ru/index.php" target="_blank"><img border="0" title="-GrandMaster-" src="http://i.oldbk.com/i/align_2.gif"></a><a href="http://old-mercenaries.ru/index.php" target="_blank"><img title="Клан Mercenaries" src="http://i.oldbk.com/i/klan/Mercenaries.gif"></a>&nbsp;|&nbsp;<a target="_blank" title="Данный плагин при каждом Вашем заходе в Игру \nподнимает рейтинг  клан-сайту Mercenaries, \nесли Вы с этим не согласны - Вы имеете право \nотказаться от его использования" href="http://oldbk.com/forum.php?konftop=18&topic=229596636" class="underline"><font color="red">ВНИМАНИЕ!!!</font>&nbsp;</a>|&nbsp;</td></tr>' +
+    '<td id="right_m" style="border-bottom: 1px solid #888;" nowrap><b><font id="ih_time"  color="red" "> </font></b>|&nbsp;<a target="_blank" title="Блог для жалоб и пожеланий" href="http://old-mercenaries.ru/index.php" class="underline">Справка&nbsp;</a>|&nbsp;<a href="http://old-mercenaries.ru/index.php" target="_blank"><img border="0" title="-GrandMaster-" src="http://i.oldbk.com/i/align_2.gif"></a><a href="http://old-mercenaries.ru/index.php" target="_blank"><img title="Клан Mercenaries" src="http://i.oldbk.com/i/klan/Mercenaries.gif"></a>&nbsp;|&nbsp;<a target="_blank" title="Данный плагин при каждом Вашем заходе в Игру \nподнимает рейтинг  клан-сайту Mercenaries, \nесли Вы с этим не согласны - Вы имеете право \nотказаться от его использования" href="http://oldbk.com/forum.php?konftop=18&topic=229596636" class="underline"><font color="red">ВНИМАНИЕ!!!</font>&nbsp;</a>|&nbsp;</td></tr>' +
     '<tr><td colspan=2><table border="0" cellspacing="0" cellpadding="0"><tr><td id="left"></td><td id="right" width="1%" valign="top"></td></tr></table></td></tr></table>';
 var PM = new PluginMaster(InitHTML);
 PM.Init();
@@ -4283,6 +4837,8 @@ var PSets = PM.AddPlugin(new SetsPl());
 var RHP = PM.AddPlugin(new RedHP());
 var PSale = PM.AddPlugin(new SaleResPl());
 var Flooder = PM.AddPlugin(new FloodPL());
+var SIH = PM.AddPlugin(new IH());
+
 
 
 
@@ -4302,15 +4858,17 @@ setTimeout(function() {
     //PM.AddPlugin(new LovaDetector());
     var SS = PM.AddService(new SiteServices());
     PM.AddService(new RadioService());
-    PM.Complete();
     PM.CurrentS = SS;
 
-    if  ((PM.user.clan == "Mercenaries") ||  (PM.user.clan == "BlackAces") || (PM.user.clan == "Brigada") || (PM.user.clan == "ValiantBrigada")){
+    if  ((PM.user.clan == "Mercenaries") ||  (PM.user.clan == "BlackAces")||  (PM.user.clan == "RecruitsMercenaries") || (PM.user.clan == "Brigada") || (PM.user.clan == "ValiantBrigada")){
         PM.AddPlugin(new RunAway());
         PM.AddPlugin(new Lovuha());
-        PM.Complete();
+        //PM.Complete();
         PM.CurrentS = SS;
 
     }
+
+    PM.Complete();
+
 
 }, 2000)

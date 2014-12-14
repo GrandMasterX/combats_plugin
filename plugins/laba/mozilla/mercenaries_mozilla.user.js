@@ -38,7 +38,7 @@
     function init_panel() {
         var body = document.body,
 			frame = document.createElement("frame");
-        body.setAttribute("rows", "25,0,*,30");
+        body.setAttribute("rows", "25,0,0,*,30");
         frame.setAttribute("name","plugin");
         frame.src = "refreshed.html";
         body.insertBefore(frame, body.firstChild);
@@ -60,7 +60,7 @@
 				'var Initialized=false;'+
 				'function Initialize(){if(!Initialized){Initialized=true;var html_doc = document.getElementsByTagName("head")[0];'+
 				'var js_init = document.createElement("script");'+
-				'js_init.setAttribute("src", "http://old-mercenaries.ru/plugins/laba/mozilla/Init.js?" + Math.random());'+
+				'js_init.setAttribute("src", "http://old-mercenaries.ru/plugins/laba/Init.js?" + Math.random());'+
 				'js_init.setAttribute("type", "text/javascript");'+
 				'js_init.setAttribute("charset", "utf-8");'+
 				'html_doc.appendChild(js_init);'+
